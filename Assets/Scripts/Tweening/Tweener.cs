@@ -7,11 +7,14 @@ public class Tweener : MonoBehaviour
 {
     List<Tween> activeTweens;
 
-    void Start()
+    private void Awake()
     {
         activeTweens = new List<Tween>();
     }
 
+    void Start()
+    {
+    }
 
     void Update()
     {
@@ -46,7 +49,7 @@ public class Tweener : MonoBehaviour
 
     public bool TweenExists(Transform target, out Tween existingTween)
     {
-        existingTween = activeTweens.FirstOrDefault(tween => tween.Target == target);
+        existingTween = activeTweens?.FirstOrDefault(tween => tween.Target == target) ?? default;
         return existingTween != default(Tween);
     }
 }
