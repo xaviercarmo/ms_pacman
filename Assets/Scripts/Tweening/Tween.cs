@@ -18,4 +18,10 @@ public class Tween
         StartTime = startTime;
         Duration = duration;
     }
+
+    public void Reverse()
+    {
+        (StartPos, EndPos) = (EndPos, StartPos);
+        StartTime = Time.time - (StartTime + Duration - Time.time);
+    }
 }
