@@ -10,6 +10,7 @@ public class GhostManager : MonoBehaviour
     public GameObject OrangeGhostPrefab;
     public Grid levelGrid;
     public Tilemap wallsTilemap;
+    public Tilemap upBlockersTilemap;
 
     List<IGhostBehaviour> ghostBehaviours;
 
@@ -19,8 +20,11 @@ public class GhostManager : MonoBehaviour
 
         SpawnGhost(OrangeGhostPrefab, new Vector3(-2, 2), new OrangeGhostBehaviour());
         SpawnGhost(PinkGhostPrefab, new Vector3(0, 2), new PinkGhostBehaviour());
-        SpawnGhost(RedGhostPrefab, new Vector3(0, 4), new RedGhostBehaviour(GameObject.FindWithTag("Player"), levelGrid, wallsTilemap));
+        SpawnGhost(RedGhostPrefab, new Vector3(0, 4), new RedGhostBehaviour(GameObject.FindWithTag("Player"), levelGrid, wallsTilemap, upBlockersTilemap));
         SpawnGhost(BlueGhostPrefab, new Vector3(2, 2), new BlueGhostBehaviour());
+
+        var upBlockersRenderer = upBlockersTilemap.GetComponent<TilemapRenderer>();
+        upBlockersRenderer.enabled = false;
     }
 
     void Update()

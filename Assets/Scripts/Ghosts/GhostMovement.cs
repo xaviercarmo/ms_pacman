@@ -6,6 +6,7 @@ public class GhostMovement : MonoBehaviour
 {
     public Grid levelGrid;
     public Tilemap wallsTilemap;
+    public Tilemap blockersTilemap;
     public IGhostBehaviour behaviour;
 
     Vector3Int movement;
