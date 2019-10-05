@@ -164,7 +164,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 13
+  orthographic size: 13.6837435
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -206,14 +206,14 @@ GameObject:
   - component: {fileID: 421588449}
   - component: {fileID: 421588448}
   - component: {fileID: 421588452}
+  - component: {fileID: 421588453}
+  - component: {fileID: 421588455}
+  - component: {fileID: 421588454}
   - component: {fileID: 421588451}
   - component: {fileID: 421588450}
-  - component: {fileID: 421588453}
-  - component: {fileID: 421588456}
-  - component: {fileID: 421588455}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -308,7 +308,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 421588446}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbc3b98884b7c68489a8ccc9fefe3eb7, type: 3}
+  m_Script: {fileID: 11500000, guid: 949e47d86cb8ada43a617bbd55893446, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   levelGrid: {fileID: 722554182}
@@ -322,7 +322,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 421588446}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7a1aa5d4a9b31e4eb928fe88a05a805, type: 3}
+  m_Script: {fileID: 11500000, guid: 1bc9f29e2b60e934cade6b8a9db35207, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &421588452
@@ -349,6 +349,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bfcc5bf3a49bfb439b188477e64e8a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &421588454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421588446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dfe09242c4224d46b2aaacefe1a154c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!58 &421588455
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -365,18 +377,6 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.93
---- !u!114 &421588456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 421588446}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff124f4365ae30342ad409effeb5845e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &455337802
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -389,20 +389,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: Red Ghost
       objectReference: {fileID: 0}
+    - target: {fileID: 6048329353945350022, guid: b55eab880963fcf44bca4729297c5d88,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6048329353945350021, guid: b55eab880963fcf44bca4729297c5d88,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.02
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6048329353945350021, guid: b55eab880963fcf44bca4729297c5d88,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.02
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6048329353945350021, guid: b55eab880963fcf44bca4729297c5d88,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.04296875
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6048329353945350021, guid: b55eab880963fcf44bca4729297c5d88,
         type: 3}
@@ -453,6 +458,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.x
       value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2705656974631050237, guid: b55eab880963fcf44bca4729297c5d88,
+        type: 3}
+      propertyPath: levelGrid
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2705656974631050237, guid: b55eab880963fcf44bca4729297c5d88,
+        type: 3}
+      propertyPath: wallsTilemap
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b55eab880963fcf44bca4729297c5d88, type: 3}
@@ -513,20 +528,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pink Ghost
       objectReference: {fileID: 0}
+    - target: {fileID: 5143375418816596573, guid: 937e8c23354011e48964247f406ae04c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5143375418816596568, guid: 937e8c23354011e48964247f406ae04c,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.98
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5143375418816596568, guid: 937e8c23354011e48964247f406ae04c,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.02
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5143375418816596568, guid: 937e8c23354011e48964247f406ae04c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0431824
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5143375418816596568, guid: 937e8c23354011e48964247f406ae04c,
         type: 3}
@@ -592,20 +612,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: Turquoise Ghost
       objectReference: {fileID: 0}
+    - target: {fileID: 7677114203109138514, guid: 5539ec07f3ff7674984b3041b785942f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7677114203109138519, guid: 5539ec07f3ff7674984b3041b785942f,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.02
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7677114203109138519, guid: 5539ec07f3ff7674984b3041b785942f,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.02
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7677114203109138519, guid: 5539ec07f3ff7674984b3041b785942f,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0431824
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7677114203109138519, guid: 5539ec07f3ff7674984b3041b785942f,
         type: 3}
@@ -662,6 +687,16 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6620352062192033017, guid: 5539ec07f3ff7674984b3041b785942f,
+        type: 3}
+      propertyPath: levelGrid
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6620352062192033017, guid: 5539ec07f3ff7674984b3041b785942f,
+        type: 3}
+      propertyPath: wallsTilemap
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5539ec07f3ff7674984b3041b785942f, type: 3}
 --- !u!1001 &1297891730
@@ -676,20 +711,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: Orange Ghost
       objectReference: {fileID: 0}
+    - target: {fileID: 3347152787542209408, guid: 64e616122df8fd04e9a05f7a30b493a8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3347152787542209411, guid: 64e616122df8fd04e9a05f7a30b493a8,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.98
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 3347152787542209411, guid: 64e616122df8fd04e9a05f7a30b493a8,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.02
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3347152787542209411, guid: 64e616122df8fd04e9a05f7a30b493a8,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0431824
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3347152787542209411, guid: 64e616122df8fd04e9a05f7a30b493a8,
         type: 3}
@@ -752,6 +792,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1590670902}
+  - component: {fileID: 1590670903}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -773,6 +814,28 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1590670903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1590670901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ab051bce0d0266488a1b1d2409e31fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RedGhostPrefab: {fileID: 6048329353945350022, guid: b55eab880963fcf44bca4729297c5d88,
+    type: 3}
+  BlueGhostPrefab: {fileID: 7677114203109138514, guid: 5539ec07f3ff7674984b3041b785942f,
+    type: 3}
+  PinkGhostPrefab: {fileID: 5143375418816596573, guid: 937e8c23354011e48964247f406ae04c,
+    type: 3}
+  OrangeGhostPrefab: {fileID: 3347152787542209408, guid: 64e616122df8fd04e9a05f7a30b493a8,
+    type: 3}
+  levelGrid: {fileID: 722554182}
+  wallsTilemap: {fileID: 1602406049}
 --- !u!1 &1602406046
 GameObject:
   m_ObjectHideFlags: 0

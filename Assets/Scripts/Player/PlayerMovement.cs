@@ -7,7 +7,8 @@ public enum Direction
     Up,
     Left,
     Down,
-    Right
+    Right,
+    None
 }
 
 public class PlayerMovement : MonoBehaviour
@@ -16,7 +17,7 @@ public class PlayerMovement : MonoBehaviour
     public Tilemap wallsTilemap;
 
     Vector3Int movement;
-    float timeToTravelGridSize = 2f;
+    float timeToTravelGridSize = 0.15f;
 
     Tweener tweener;
     new SpriteRenderer renderer;

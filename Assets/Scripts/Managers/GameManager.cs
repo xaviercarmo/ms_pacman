@@ -13,6 +13,7 @@ public enum GameLevel
 public class GameManager : MonoBehaviour
 {
     public static GameLevel CurrentGameLevel { get; private set; }
+    public static Grid LevelGrid { get; private set; }
 
     private void Awake()
     {
