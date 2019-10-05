@@ -1,64 +1,186 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Tilemaps;
+
+public enum Direction
+{
+    Up,
+    Left,
+    Down,
+    Right
+}
 
 public class PlayerMovement : MonoBehaviour
 {
-    Vector3 movement;
-    float movementDistance = 1f;
+    public Grid levelGrid;
+    public Tilemap wallsTilemap;
+
+    Vector3Int movement;
+    float timeToTravelGridSize = 2f;
+
     Tweener tweener;
     new SpriteRenderer renderer;
-    KeyCode lastKeyConsumed;
+
+    KeyCode lastMovementKeyApplied;
+
+    Vector3Int previousCellPos;
+    Vector3Int currentCellPos;
+    Vector3Int targetCellPos;
+
+    bool flipX = false;
+    bool flipY = false;
+    Quaternion rotation = Quaternion.identity;
 
     void Start()
     {
         tweener = GetComponent<Tweener>();
         renderer = GetComponent<SpriteRenderer>();
+
+        currentCellPos = levelGrid.WorldToCell(transform.position);
+        targetCellPos = currentCellPos + new Vector3Int(1, 0, 0);
+
+        TweenToTargetCell();
     }
 
     void Update()
     {
-        UpdateMovementAndSprite();
-        tweener.AddTween(transform, transform.position, transform.position + movement, 0.5f);
+        if (!tweener.TweenExists(transform, out var existingTween))
+        {
+            previousCellPos = currentCellPos;
+            currentCellPos = targetCellPos;
+            var updatedTargetCellPos = GetUpdatedTargetCellAndSprite();
+
+            if (updatedTargetCellPos != currentCellPos)
+            {
+                targetCellPos = updatedTargetCellPos;
+                TweenToTargetCell();
+            }
+        }
+        else if (IsMovementKeyRetrograde())
+        {
+            lastMovementKeyApplied = PlayerInputManager.LastMovementKeyPressed;
+
+            existingTween.Reverse();
+            (currentCellPos, targetCellPos) = (targetCellPos, currentCellPos);
+
+            ReverseFlipAndRotation();
+            ApplyFlipAndRotation();
+        }
+
+        var currentCellCenter = wallsTilemap.GetCellCenterWorld(currentCellPos);
+        var targetCellCenter = wallsTilemap.GetCellCenterWorld(targetCellPos);
+        Debug.DrawLine(currentCellCenter, targetCellCenter, Color.red, 0f, false);
     }
 
-    void UpdateMovementAndSprite()
+    void TweenToTargetCell()
     {
-        var lastMovementKeyPressed = PlayerInputManager.ConsumeLastMovementKey();
+        ApplyFlipAndRotation();
 
-        if (lastKeyConsumed == lastMovementKeyPressed) return;
-        else lastKeyConsumed = lastMovementKeyPressed;
+        var currentCellCenter = wallsTilemap.GetCellCenterWorld(currentCellPos);
+        var targetCellCenter = wallsTilemap.GetCellCenterWorld(targetCellPos);
+        tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize);
+    }
 
-        if (lastMovementKeyPressed == PlayerInputManager.Controls.Up)
+    void ApplyFlipAndRotation()
+    {
+        renderer.flipX = flipX;
+        renderer.flipY = flipY;
+        transform.rotation = rotation;
+    }
+
+    void ReverseFlipAndRotation()
+    {
+        if (lastMovementKeyApplied == PlayerInputManager.Controls.Down || lastMovementKeyApplied == PlayerInputManager.Controls.Up)
         {
-            movement.x = 0;
-            movement.y = movementDistance;
-            renderer.flipY = renderer.flipX;
-            renderer.flipX = false;
-            transform.rotation = Quaternion.Euler(0, 0, 90);
+            flipY = !flipY;
+            rotation.z *= -1;
         }
-        else if (lastMovementKeyPressed == PlayerInputManager.Controls.Left)
+        else if (lastMovementKeyApplied == PlayerInputManager.Controls.Left || lastMovementKeyApplied == PlayerInputManager.Controls.Right)
         {
-            movement.y = 0;
-            movement.x = -movementDistance;
-            renderer.flipX = true;
-            renderer.flipY = false;
-            transform.rotation = Quaternion.identity;
+            flipX = !flipX;
         }
-        else if (lastMovementKeyPressed == PlayerInputManager.Controls.Down)
+    }
+
+    Vector3Int GetUpdatedTargetCellAndSprite()
+    {
+        var result = targetCellPos;
+
+        if (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Up)
         {
-            movement.x = 0;
-            movement.y = -movementDistance;
-            renderer.flipY = renderer.flipX;
-            renderer.flipX = false;
-            transform.rotation = Quaternion.Euler(0, 0, -90);
+            if (lastMovementKeyApplied != PlayerInputManager.LastMovementKeyPressed)
+            {
+                flipY = renderer.flipX;
+                flipX = false;
+
+                rotation = Quaternion.Euler(0, 0, 90);
+            }
+
+            result = new Vector3Int(targetCellPos.x, targetCellPos.y + (int)levelGrid.cellSize.y, 0);
         }
-        else if (lastMovementKeyPressed == PlayerInputManager.Controls.Right)
+        else if (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Left)
         {
-            movement.y = 0;
-            movement.x = movementDistance;
-            renderer.flipX = false;
-            renderer.flipY = false;
-            transform.rotation = Quaternion.identity;
+            if (lastMovementKeyApplied != PlayerInputManager.LastMovementKeyPressed)
+            {
+                flipX = true;
+                flipY = false;
+
+                rotation = Quaternion.identity;
+            }
+
+            result = new Vector3Int(targetCellPos.x - (int)levelGrid.cellSize.x, targetCellPos.y, 0);
         }
+        else if (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Down)
+        {
+            if (lastMovementKeyApplied != PlayerInputManager.LastMovementKeyPressed)
+            {
+                flipY = renderer.flipX;
+                flipX = false;
+
+                rotation = Quaternion.Euler(0, 0, -90);
+            }
+
+            result = new Vector3Int(targetCellPos.x, targetCellPos.y - (int)levelGrid.cellSize.y, 0);
+        }
+        else if (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Right)
+        {
+            if (lastMovementKeyApplied != PlayerInputManager.LastMovementKeyPressed)
+            {
+                flipX = false;
+                flipY = false;
+
+                rotation = Quaternion.identity;
+            }
+
+            result = new Vector3Int(targetCellPos.x + (int)levelGrid.cellSize.x, targetCellPos.y, 0);
+        }
+
+        if (wallsTilemap.HasTile(result))
+        {
+            flipY = renderer.flipY;
+            flipX = renderer.flipX;
+            rotation = transform.rotation;
+
+            result = targetCellPos + (targetCellPos - previousCellPos);
+
+            if (wallsTilemap.HasTile(result))
+            {
+                result = currentCellPos;
+            }
+        }
+        else
+        {
+            lastMovementKeyApplied = PlayerInputManager.LastMovementKeyPressed;
+        }
+
+
+        return result;
+    }
+
+    bool IsMovementKeyRetrograde()
+    {
+        return (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Up && lastMovementKeyApplied == PlayerInputManager.Controls.Down)
+            || (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Down && lastMovementKeyApplied == PlayerInputManager.Controls.Up)
+            || (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Left && lastMovementKeyApplied == PlayerInputManager.Controls.Right)
+            || (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Right && lastMovementKeyApplied == PlayerInputManager.Controls.Left);
     }
 }

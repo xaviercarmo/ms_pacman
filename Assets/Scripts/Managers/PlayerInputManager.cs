@@ -25,12 +25,13 @@ public class PlayerInputManager : MonoBehaviour
 
     KeyCode[] movementKeys = new KeyCode[4];
 
-    public static KeyCode LastMovementKeyPressed = KeyCode.D;
+    public static KeyCode LastMovementKeyPressed { get; private set; }
 
 
     private void Start()
     {
         LoadMovementKeys();
+        LastMovementKeyPressed = Controls.Right;
     }
 
     void Update()
@@ -44,16 +45,19 @@ public class PlayerInputManager : MonoBehaviour
     //Called when player preferences are changed to re-initialise the movement key array
     public void LoadMovementKeys()
     {
-        //load from player prefs
+        //later will load from player prefs and set controls too
         movementKeys[0] = Controls.Up;
         movementKeys[1] = Controls.Left;
         movementKeys[2] = Controls.Down;
         movementKeys[3] = Controls.Right;
     }
 
-    //Gets the key that was last pressed out of the movement keys
+    //Gets the key that was last pressed out of the movement keys, if none were pressed then rely on default
     KeyCode GetLastMovementKeyPressed(KeyCode[] keys)
-        => keys.Where(key => Input.GetKeyDown(key)).LastOrDefault();
+    {
+        var result = keys.Where(key => Input.GetKeyDown(key)).LastOrDefault();
+        return result == KeyCode.None ? LastMovementKeyPressed : result;
+    }
 
     //erases the last movement key and returns a copy of it
     public static KeyCode ConsumeLastMovementKey()
