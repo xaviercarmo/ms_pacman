@@ -13,6 +13,8 @@ public class GhostManager : MonoBehaviour
     public Tilemap upBlockersTilemap;
     public Tilemap downBlockersTilemap;
 
+    public static int DotsEaten = 0;
+
     List<GhostBehaviour> ghostBehaviours;
     float modeTime = 0;
     Queue<(GhostMode, float)> modeQueue;
@@ -38,10 +40,11 @@ public class GhostManager : MonoBehaviour
 
     void Start()
     {
-        SpawnGhost(RedGhostPrefab, new Vector3(0, 4), new RedGhostBehaviour(GameObject.FindWithTag("Player"), levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
-        SpawnGhost(OrangeGhostPrefab, new Vector3(-2, 2), new OrangeGhostBehaviour());
-        SpawnGhost(PinkGhostPrefab, new Vector3(0, 2), new PinkGhostBehaviour());
-        SpawnGhost(BlueGhostPrefab, new Vector3(2, 2), new BlueGhostBehaviour());
+        var playerGameObject = GameObject.FindWithTag("Player");
+        SpawnGhost(RedGhostPrefab, new Vector3(0, 4), new RedGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
+        SpawnGhost(OrangeGhostPrefab, new Vector3(-2, 2), new OrangeGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
+        SpawnGhost(PinkGhostPrefab, new Vector3(0, 2), new PinkGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
+        SpawnGhost(BlueGhostPrefab, new Vector3(2, 2), new BlueGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
 
         var upBlockersRenderer = upBlockersTilemap.GetComponent<TilemapRenderer>();
         upBlockersRenderer.enabled = false;
