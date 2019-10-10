@@ -4,11 +4,15 @@ using UnityEngine.Tilemaps;
 
 public class GhostMovement : MonoBehaviour
 {
-    public Grid levelGrid;
-    public Tilemap wallsTilemap;
-    public Tilemap blockersTilemap;
-    public IGhostBehaviour behaviour;
+    //Public fields/properties
+    public Grid LevelGrid;
+    public Tilemap WallsTilemap;
+    public Tilemap BlockersTilemap;
+    public GhostBehaviour Behaviour;
 
+    public bool ShouldReverseMovement = false;
+
+    //Private fields/properties
     Vector3Int movement;
     float timeToTravelGridSize = 0.15f;
 
@@ -26,36 +30,50 @@ public class GhostMovement : MonoBehaviour
         renderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
 
-        currentCellPos = levelGrid.WorldToCell(transform.position);
+        currentCellPos = LevelGrid.WorldToCell(transform.position);
         targetCellPos = currentCellPos;
     }
 
     void Update()
     {
-        if (!tweener.TweenExists(transform, out var _))
+        if (!tweener.TweenExists(transform, out var existingTween))
         {
             previousCellPos = currentCellPos;
             currentCellPos = targetCellPos;
-            UpdateTargetCellAndAnimation();
+            UpdateTargetCellAndAnimation(ShouldReverseMovement);
 
             if (targetCellPos != currentCellPos)
             {
                 TweenToTargetCell();
             }
+
+            ShouldReverseMovement = false;
+        }
+        else if (ShouldReverseMovement)
+        {
+            existingTween.Reverse();
+            (currentCellPos, targetCellPos) = (targetCellPos, currentCellPos);
+
+            UpdateTargetCellAndAnimation(true);
+
+            ShouldReverseMovement = false;
         }
     }
 
-    void UpdateTargetCellAndAnimation()
+    void UpdateTargetCellAndAnimation(bool reverse = false)
     {
-        var oldDirectionVec = (currentCellPos - previousCellPos);
+        var oldDirectionVec = currentCellPos - previousCellPos;
         oldDirectionVec.Clamp(Vector3Int.one * -1, Vector3Int.one);
 
-        targetCellPos = behaviour.GetNextTargetCellPos(previousCellPos, currentCellPos);
+        if (!reverse)
+        {
+            targetCellPos = Behaviour.GetNextTargetCellPos(previousCellPos, currentCellPos);
+        }
 
-        var newDirectionVec = (targetCellPos - currentCellPos);
+        var newDirectionVec = targetCellPos - currentCellPos;
         newDirectionVec.Clamp(Vector3Int.one * -1, Vector3Int.one);
 
-        if (oldDirectionVec != newDirectionVec)
+        if (oldDirectionVec != newDirectionVec || reverse)
         {
             if (newDirectionVec.x > 0)
             {
@@ -83,8 +101,8 @@ public class GhostMovement : MonoBehaviour
 
     void TweenToTargetCell()
     {
-        var currentCellCenter = wallsTilemap.GetCellCenterWorld(currentCellPos);
-        var targetCellCenter = wallsTilemap.GetCellCenterWorld(targetCellPos);
+        var currentCellCenter = WallsTilemap.GetCellCenterWorld(currentCellPos);
+        var targetCellCenter = WallsTilemap.GetCellCenterWorld(targetCellPos);
         tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize);
     }
 }

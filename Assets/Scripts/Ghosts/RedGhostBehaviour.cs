@@ -3,17 +3,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class RedGhostBehaviour : IGhostBehaviour
+public class RedGhostBehaviour : GhostBehaviour
 {
-    public GhostMode Mode { get; set; } = GhostMode.Chase;
-
-    GameObject player;
-    Grid levelGrid;
-    Tilemap wallsTilemap;
-    Tilemap upBlockersTilemap;
-
-    Vector3Int scatterGoalCellPos;
-
     public RedGhostBehaviour(GameObject player, Grid levelGrid, Tilemap wallsTilemap, Tilemap upBlockersTilemap)
     {
         this.player = player;
@@ -25,9 +16,9 @@ public class RedGhostBehaviour : IGhostBehaviour
     }
 
     // Uses red ghost logic to decide which cell to tween to next
-    public Vector3Int GetNextTargetCellPos(Vector3Int previousCellPos, Vector3Int currentCellPos)
+    public override Vector3Int GetNextTargetCellPos(Vector3Int previousCellPos, Vector3Int currentCellPos)
     {
-        switch (Mode)
+        switch (mode)
         {
             case GhostMode.Chase:
                 return GetNextTargetCellTowardsGoal(levelGrid.WorldToCell(player.transform.position), previousCellPos, currentCellPos);
@@ -41,7 +32,7 @@ public class RedGhostBehaviour : IGhostBehaviour
     }
 
     // Moves greedily towards the target cell based on a straight-line-distance heuristic to the goalCellPos
-    public Vector3Int GetNextTargetCellTowardsGoal(Vector3Int goalCellPos, Vector3Int previousCellPos, Vector3Int currentCellPos)
+    Vector3Int GetNextTargetCellTowardsGoal(Vector3Int goalCellPos, Vector3Int previousCellPos, Vector3Int currentCellPos)
     {
         var candidateCellTargets = GetCandidateCellTargets(previousCellPos, currentCellPos);
 
