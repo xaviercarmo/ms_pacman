@@ -5,12 +5,13 @@ using UnityEngine.Tilemaps;
 
 public class RedGhostBehaviour : GhostBehaviour
 {
-    public RedGhostBehaviour(GameObject player, Grid levelGrid, Tilemap wallsTilemap, Tilemap upBlockersTilemap)
+    public RedGhostBehaviour(GameObject player, Grid levelGrid, Tilemap wallsTilemap, Tilemap upBlockersTilemap, Tilemap downBlockersTilemap)
     {
         this.player = player;
         this.levelGrid = levelGrid;
         this.wallsTilemap = wallsTilemap;
         this.upBlockersTilemap = upBlockersTilemap;
+        this.downBlockersTilemap = downBlockersTilemap;
 
         scatterGoalCellPos = new Vector3Int(wallsTilemap.cellBounds.xMax, wallsTilemap.cellBounds.yMax, 0);
     }
@@ -78,7 +79,8 @@ public class RedGhostBehaviour : GhostBehaviour
         {
             return wallsTilemap.HasTile(c.Pos)
             || c.Pos == previousCellPos
-            || (c.Direction == Direction.Up && upBlockersTilemap.HasTile(currentCellPos));
+            || (c.Direction == Direction.Up && upBlockersTilemap.HasTile(currentCellPos))
+            || (c.Direction == Direction.Down && downBlockersTilemap.HasTile(currentCellPos));
         });
 
         return result;

@@ -11,17 +11,34 @@ public class GhostManager : MonoBehaviour
     public Grid levelGrid;
     public Tilemap wallsTilemap;
     public Tilemap upBlockersTilemap;
+    public Tilemap downBlockersTilemap;
 
     List<GhostBehaviour> ghostBehaviours;
+    float modeTime = 0;
+    Queue<(GhostMode, float)> modeQueue;
 
     private void Awake()
     {
         ghostBehaviours = new List<GhostBehaviour>();
+        modeQueue = new Queue<(GhostMode, float)>
+        (
+            new (GhostMode, float)[]
+            {
+                (GhostMode.Scatter, 0f),
+                (GhostMode.Chase, 7f),
+                (GhostMode.Scatter, 20f),
+                (GhostMode.Chase, 5f),
+                (GhostMode.Scatter, 20f),
+                (GhostMode.Chase, 5f),
+                (GhostMode.Scatter, float.PositiveInfinity),
+                (GhostMode.Chase, -1)
+            }
+        );
     }
 
     void Start()
     {
-        SpawnGhost(RedGhostPrefab, new Vector3(0, 4), new RedGhostBehaviour(GameObject.FindWithTag("Player"), levelGrid, wallsTilemap, upBlockersTilemap));
+        SpawnGhost(RedGhostPrefab, new Vector3(0, 4), new RedGhostBehaviour(GameObject.FindWithTag("Player"), levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
         SpawnGhost(OrangeGhostPrefab, new Vector3(-2, 2), new OrangeGhostBehaviour());
         SpawnGhost(PinkGhostPrefab, new Vector3(0, 2), new PinkGhostBehaviour());
         SpawnGhost(BlueGhostPrefab, new Vector3(2, 2), new BlueGhostBehaviour());
@@ -29,11 +46,18 @@ public class GhostManager : MonoBehaviour
         var upBlockersRenderer = upBlockersTilemap.GetComponent<TilemapRenderer>();
         upBlockersRenderer.enabled = false;
 
-        ChangeGhostMode(GhostMode.Chase);
+        var downBlockersRenderer = downBlockersTilemap.GetComponent<TilemapRenderer>();
+        downBlockersRenderer.enabled = false;
     }
 
     void Update()
     {
+        modeTime += Time.deltaTime;
+        if (modeTime >= modeQueue.Peek().Item2)
+        {
+            modeTime = 0;
+            ChangeGhostMode(modeQueue.Dequeue().Item1);
+        }
     }
 
     void SpawnGhost(GameObject prefab, Vector3 worldPos, GhostBehaviour behaviour)

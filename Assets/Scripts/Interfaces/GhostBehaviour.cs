@@ -23,6 +23,7 @@ public abstract class GhostBehaviour
     protected Grid levelGrid;
     protected Tilemap wallsTilemap;
     protected Tilemap upBlockersTilemap;
+    protected Tilemap downBlockersTilemap;
 
     protected Vector3Int scatterGoalCellPos;
 
