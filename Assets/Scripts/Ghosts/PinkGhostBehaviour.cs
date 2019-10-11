@@ -15,4 +15,9 @@ public class PinkGhostBehaviour : GhostBehaviour
     //Returns the cell 3 spots ahead of ms pacman's current cell
     protected override Vector3Int GetGoalCell()
         => playerMovement.CurrentCellPos + (playerMovement.TargetCellPos - playerMovement.CurrentCellPos) * 3;
+
+    protected override void AdditionalResetBehaviour()
+    {
+        secondsBeforeRelease = 3;
+    }
 }

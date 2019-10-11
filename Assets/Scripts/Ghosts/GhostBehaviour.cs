@@ -15,11 +15,11 @@ public abstract class GhostBehaviour
 {
     //Public fields/properties
     public GhostMovement MovementHandler;
+    public GameObject Player;
 
     //Protected field/properties
     protected GhostMode mode = GhostMode.Idle;
 
-    protected GameObject player;
     protected PlayerMovement playerMovement;
     protected Grid levelGrid;
     protected Tilemap wallsTilemap;
@@ -28,7 +28,7 @@ public abstract class GhostBehaviour
 
     protected Vector3Int scatterGoalCellPos;
     protected int dotsBeforeRelease = 0;
-    protected int secondsBeforeRelease = 0;
+    protected float secondsBeforeRelease = 0;
 
     //Private fields/properties
     bool released = false;
@@ -36,7 +36,7 @@ public abstract class GhostBehaviour
     //Public Methods
     public GhostBehaviour(GameObject player, Grid levelGrid, Tilemap wallsTilemap, Tilemap upBlockersTilemap, Tilemap downBlockersTilemap)
     {
-        this.player = player;
+        Player = player;
         playerMovement = player.GetComponent<PlayerMovement>();
         this.levelGrid = levelGrid;
         this.wallsTilemap = wallsTilemap;
@@ -58,15 +58,17 @@ public abstract class GhostBehaviour
     //Gets the next target cell based on ghost mode, returns early if release conditions not met
     public Vector3Int GetNextTargetCellPos(Vector3Int previousCellPos, Vector3Int currentCellPos)
     {
-        if (PlayerManager.DotsEaten < dotsBeforeRelease && Time.time < secondsBeforeRelease)
+        if (PlayerManager.DotsEaten < dotsBeforeRelease && (secondsBeforeRelease -= Time.deltaTime) >= 0)
         {
             return currentCellPos;
         }
         else if (!released)
         {
-            if (MovementHandler.CurrentCellPos != GhostManager.GhostStartCellPos)
+            secondsBeforeRelease = 0;
+
+            if (MovementHandler.CurrentCellPos != GhostManager.RedGhostStartCellPos)
             {
-                return GetNextTargetCellTowardsGoal(GhostManager.GhostStartCellPos, currentCellPos, currentCellPos);
+                return GetNextTargetCellTowardsGoal(GhostManager.RedGhostStartCellPos, currentCellPos, currentCellPos);
             }
             else
             {
@@ -142,5 +144,13 @@ public abstract class GhostBehaviour
 
     public Vector3Int DebugGoalCell() => GetGoalCell();
 
+    public void ResetState()
+    {
+        released = false;
+        MovementHandler.ResetState();
+        AdditionalResetBehaviour();
+    }
+
     protected abstract Vector3Int GetGoalCell();
+    protected abstract void AdditionalResetBehaviour();
 }

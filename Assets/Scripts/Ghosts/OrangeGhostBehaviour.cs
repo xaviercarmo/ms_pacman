@@ -23,4 +23,9 @@ public class OrangeGhostBehaviour : GhostBehaviour
             return playerMovement.CurrentCellPos;
         }
     }
+
+    protected override void AdditionalResetBehaviour()
+    {
+        secondsBeforeRelease = 9;
+    }
 }

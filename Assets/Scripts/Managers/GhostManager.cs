@@ -13,8 +13,12 @@ public class GhostManager : MonoBehaviour
     public Tilemap upBlockersTilemap;
     public Tilemap downBlockersTilemap;
 
-    public static Vector3 GhostStartWorldPos = new Vector3(0, 4);
-    public static Vector3Int GhostStartCellPos;
+    public static Vector3 RedGhostStartWorldPos = new Vector3(0, 4);
+    public static Vector3Int RedGhostStartCellPos;
+    public static Vector3 BlueGhostStartWorldPos = new Vector3(-2, 2);
+    public static Vector3 PinkGhostStartWorldPos = new Vector3(0, 2);
+    public static Vector3 OrangeGhostStartWorldPos = new Vector3(2, 2);
+
     public static int DotsEaten = 0;
 
     List<GhostBehaviour> ghostBehaviours;
@@ -42,13 +46,13 @@ public class GhostManager : MonoBehaviour
 
     void Start()
     {
-        GhostStartCellPos = levelGrid.WorldToCell(GhostStartWorldPos);
+        RedGhostStartCellPos = levelGrid.WorldToCell(RedGhostStartWorldPos);
 
         var playerGameObject = GameObject.FindWithTag("Player");
-        SpawnGhost(RedGhostPrefab, GhostStartWorldPos, new RedGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
-        SpawnGhost(OrangeGhostPrefab, new Vector3(-2, 2), new OrangeGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
-        SpawnGhost(PinkGhostPrefab, new Vector3(0, 2), new PinkGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
-        SpawnGhost(BlueGhostPrefab, new Vector3(2, 2), new BlueGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap, ghostBehaviours[0].MovementHandler));
+        SpawnGhost(RedGhostPrefab, RedGhostStartWorldPos, new RedGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
+        SpawnGhost(BlueGhostPrefab, BlueGhostStartWorldPos, new BlueGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap, ghostBehaviours[0].MovementHandler));
+        SpawnGhost(PinkGhostPrefab, PinkGhostStartWorldPos, new PinkGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
+        SpawnGhost(OrangeGhostPrefab, OrangeGhostStartWorldPos, new OrangeGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
 
         var upBlockersRenderer = upBlockersTilemap.GetComponent<TilemapRenderer>();
         upBlockersRenderer.enabled = false;
@@ -59,6 +63,8 @@ public class GhostManager : MonoBehaviour
 
     void Update()
     {
+        if (OriginalLevelManager.Instance.GameResetting) { return; }
+
         modeTime += Time.deltaTime;
         if (modeTime >= modeQueue.Peek().Item2)
         {
@@ -75,8 +81,9 @@ public class GhostManager : MonoBehaviour
         var ghostMovementHandler = ghostGameObject.GetComponent<GhostMovement>();
         ghostMovementHandler.LevelGrid = levelGrid;
         ghostMovementHandler.WallsTilemap = wallsTilemap;
-
         ghostMovementHandler.Behaviour = behaviour;
+        ghostMovementHandler.InitialWorldPos = worldPos;
+
         behaviour.MovementHandler = ghostMovementHandler;
 
         ghostBehaviours.Add(behaviour);
@@ -85,5 +92,10 @@ public class GhostManager : MonoBehaviour
     void ChangeGhostMode(GhostMode mode)
     {
         ghostBehaviours.ForEach(behaviour => behaviour.SetMode(mode));
+    }
+
+    public void ResetState()
+    {
+        ghostBehaviours.ForEach(behaviour => behaviour.ResetState());
     }
 }

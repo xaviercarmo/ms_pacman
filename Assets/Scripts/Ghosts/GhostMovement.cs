@@ -10,6 +10,8 @@ public class GhostMovement : MonoBehaviour
     public Tilemap BlockersTilemap;
     public GhostBehaviour Behaviour;
 
+    public Vector3 InitialWorldPos;
+
     public Vector3Int PreviousCellPos { get; private set; }
     public Vector3Int CurrentCellPos { get; private set; }
     public Vector3Int TargetCellPos { get; private set; }
@@ -36,11 +38,19 @@ public class GhostMovement : MonoBehaviour
 
     void Update()
     {
+        if (OriginalLevelManager.Instance.GameResetting) { return; }
+
         if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
             PreviousCellPos = CurrentCellPos;
             CurrentCellPos = TargetCellPos;
             UpdateTargetCellAndAnimation(ShouldReverseMovement);
+
+            if (LevelGrid.WorldToCell(transform.position) == LevelGrid.WorldToCell(Behaviour.Player.transform.position))
+            {
+                OriginalLevelManager.Instance.ResetLevel();
+                return;
+            }
 
             if (TargetCellPos != CurrentCellPos)
             {
@@ -120,5 +130,17 @@ public class GhostMovement : MonoBehaviour
         var currentCellCenter = WallsTilemap.GetCellCenterWorld(CurrentCellPos);
         var targetCellCenter = WallsTilemap.GetCellCenterWorld(TargetCellPos);
         tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
+    }
+
+    public void ResetState()
+    {
+        tween = null;
+        tweener.FlushTweens();
+
+        transform.position = InitialWorldPos;
+        CurrentCellPos = LevelGrid.WorldToCell(InitialWorldPos);
+        TargetCellPos = CurrentCellPos;
+
+        animator.SetTrigger("StandStill");
     }
 }

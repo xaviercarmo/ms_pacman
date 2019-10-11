@@ -12,5 +12,9 @@ public class RedGhostBehaviour : GhostBehaviour
     }
 
     //Get the end goal cell the red ghost wants to reach
-    protected override Vector3Int GetGoalCell() => levelGrid.WorldToCell(player.transform.position);
+    protected override Vector3Int GetGoalCell() => levelGrid.WorldToCell(Player.transform.position);
+
+    protected override void AdditionalResetBehaviour()
+    {
+    }
 }

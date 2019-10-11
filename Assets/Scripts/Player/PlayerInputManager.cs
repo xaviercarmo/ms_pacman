@@ -36,6 +36,8 @@ public class PlayerInputManager : MonoBehaviour
 
     void Update()
     {
+        if (OriginalLevelManager.Instance.GameResetting) { return; }
+
         if (Input.anyKeyDown)
         {
             LastMovementKeyPressed = GetLastMovementKeyPressed(movementKeys);
@@ -65,5 +67,10 @@ public class PlayerInputManager : MonoBehaviour
         var key = LastMovementKeyPressed;
         LastMovementKeyPressed = KeyCode.None;
         return key;
+    }
+
+    public static void ResetState()
+    {
+        LastMovementKeyPressed = Controls.Right;
     }
 }

@@ -23,4 +23,9 @@ public class BlueGhostBehaviour : GhostBehaviour
         var vector = (targetCellPos - redGhostMovementHandler.CurrentCellPos) * 2;
         return levelGrid.WorldToCell(redGhostMovementHandler.CurrentCellPos + vector);
     }
+
+    protected override void AdditionalResetBehaviour()
+    {
+        secondsBeforeRelease = 6;
+    }
 }

@@ -205,9 +205,9 @@ GameObject:
   - component: {fileID: 421588447}
   - component: {fileID: 421588449}
   - component: {fileID: 421588448}
+  - component: {fileID: 421588455}
   - component: {fileID: 421588452}
   - component: {fileID: 421588453}
-  - component: {fileID: 421588455}
   - component: {fileID: 421588454}
   - component: {fileID: 421588451}
   - component: {fileID: 421588450}
@@ -230,7 +230,7 @@ Transform:
   m_LocalScale: {x: 0.5, y: 0.5, z: 0}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &421588448
 Animator:
@@ -520,7 +520,7 @@ Transform:
   - {fileID: 1954793854}
   - {fileID: 928310323}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &745226704
 GameObject:
@@ -1129,6 +1129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1590670902}
   - component: {fileID: 1590670903}
+  - component: {fileID: 1590670904}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -1148,7 +1149,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1590670903
 MonoBehaviour:
@@ -1174,6 +1175,18 @@ MonoBehaviour:
   wallsTilemap: {fileID: 1602406049}
   upBlockersTilemap: {fileID: 1706057047}
   downBlockersTilemap: {fileID: 745226707}
+--- !u!114 &1590670904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1590670901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51e8b0ba9b1a7a84e903b4b3f51937b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1602406046
 GameObject:
   m_ObjectHideFlags: 0
