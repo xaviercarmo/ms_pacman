@@ -31,11 +31,18 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
+    }
+
+    void Update()
+    {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
     }
 
     void StartGame()
     {
-        Debug.Log("Fuck you");
         Time.timeScale = 1f;
     }
 

@@ -26,9 +26,9 @@ public class GhostManager : MonoBehaviour
         (
             new (GhostMode, float)[]
             {
-                (GhostMode.Scatter, 0f),
-                (GhostMode.Chase, 7f),
-                (GhostMode.Scatter, 20f),
+                //(GhostMode.Scatter, 0f),
+                (GhostMode.Chase, 0f),//7f),
+                (GhostMode.Scatter, 2000f),
                 (GhostMode.Chase, 5f),
                 (GhostMode.Scatter, 20f),
                 (GhostMode.Chase, 5f),

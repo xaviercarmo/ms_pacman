@@ -20,6 +20,7 @@ public class PlayerMovement : MonoBehaviour
     float timeToTravelGridSize = 0.15f;
 
     Tweener tweener;
+    Tween tween;
     new SpriteRenderer renderer;
 
     KeyCode lastMovementKeyApplied;
@@ -34,6 +35,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        //Time.timeScale = 0.5f;
+
         tweener = GetComponent<Tweener>();
         renderer = GetComponent<SpriteRenderer>();
 
@@ -45,13 +48,23 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (!tweener.TweenExists(transform, out var existingTween))
+        if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
             var updatedTargetCellPos = GetUpdatedTargetCellAndSprite();
             if (updatedTargetCellPos != CurrentCellPos)
             {
                 TargetCellPos = updatedTargetCellPos;
-                TweenToTargetCell();
+
+                if (CurrentCellPos - PreviousCellPos != TargetCellPos - CurrentCellPos)
+                {
+                    TweenToTargetCell();
+                }
+                else
+                {
+                    tween.StartPos = wallsTilemap.GetCellCenterWorld(CurrentCellPos);
+                    tween.EndPos = wallsTilemap.GetCellCenterWorld(TargetCellPos);
+                    tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
+                }
             }
         }
         else if (IsMovementKeyRetrograde())
@@ -65,9 +78,10 @@ public class PlayerMovement : MonoBehaviour
             ApplyFlipAndRotation();
         }
 
-        var currentCellCenter = wallsTilemap.GetCellCenterWorld(CurrentCellPos);
-        var targetCellCenter = wallsTilemap.GetCellCenterWorld(TargetCellPos);
-        Debug.DrawLine(currentCellCenter, targetCellCenter, Color.red, 0f, false);
+        //var currentCellCenter = wallsTilemap.GetCellCenterWorld(CurrentCellPos);
+        //var targetCellCenter = wallsTilemap.GetCellCenterWorld(TargetCellPos);
+        //Debug.DrawLine(currentCellCenter, targetCellCenter, Color.red, 0f, false);
+        //Debug.DrawLine(tween.StartPos, tween.EndPos, Color.red, 0f, false);
     }
 
     void TweenToTargetCell()
@@ -76,7 +90,7 @@ public class PlayerMovement : MonoBehaviour
 
         var currentCellCenter = wallsTilemap.GetCellCenterWorld(CurrentCellPos);
         var targetCellCenter = wallsTilemap.GetCellCenterWorld(TargetCellPos);
-        tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize);
+        tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
     }
 
     void ApplyFlipAndRotation()
@@ -176,7 +190,6 @@ public class PlayerMovement : MonoBehaviour
         {
             lastMovementKeyApplied = PlayerInputManager.LastMovementKeyPressed;
         }
-
 
         return result;
     }

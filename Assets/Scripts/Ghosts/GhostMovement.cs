@@ -13,10 +13,10 @@ public class GhostMovement : MonoBehaviour
     public bool ShouldReverseMovement = false;
 
     //Private fields/properties
-    Vector3Int movement;
     float timeToTravelGridSize = 0.15f;
 
     Tweener tweener;
+    Tween tween;
     new SpriteRenderer renderer;
     Animator animator;
 
@@ -36,7 +36,7 @@ public class GhostMovement : MonoBehaviour
 
     void Update()
     {
-        if (!tweener.TweenExists(transform, out var existingTween))
+        if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
             previousCellPos = currentCellPos;
             currentCellPos = targetCellPos;
@@ -44,7 +44,16 @@ public class GhostMovement : MonoBehaviour
 
             if (targetCellPos != currentCellPos)
             {
-                TweenToTargetCell();
+                if (currentCellPos - previousCellPos != targetCellPos - currentCellPos)
+                {
+                    TweenToTargetCell();
+                }
+                else
+                {
+                    tween.StartPos = WallsTilemap.GetCellCenterWorld(currentCellPos);
+                    tween.EndPos = WallsTilemap.GetCellCenterWorld(targetCellPos);
+                    tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
+                }
             }
 
             ShouldReverseMovement = false;
@@ -103,6 +112,6 @@ public class GhostMovement : MonoBehaviour
     {
         var currentCellCenter = WallsTilemap.GetCellCenterWorld(currentCellPos);
         var targetCellCenter = WallsTilemap.GetCellCenterWorld(targetCellPos);
-        tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize);
+        tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
     }
 }
