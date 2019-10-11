@@ -3,18 +3,8 @@ using System.Collections;
 
 public class PlayerManager : MonoBehaviour
 {
-    //private static PlayerManager instance;
-
-    //public static PlayerManager Instance
-    //{
-    //    get
-    //    {
-    //        if (instance == null)
-    //        {
-
-    //        }
-    //    }
-    //}
+    public static int DotsEaten = 0;
+    int lives = 3;
 
     void Start()
     {

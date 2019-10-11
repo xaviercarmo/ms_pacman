@@ -15,6 +15,8 @@ public class PlayerMovement : MonoBehaviour
 {
     public Grid levelGrid;
     public Tilemap wallsTilemap;
+    public Tilemap consumablesTilemap;
+    public Tilemap horizontalPortalsTilemap;
 
     public Vector3Int PreviousCellPos { get; private set; }
     public Vector3Int CurrentCellPos { get; private set; }
@@ -49,6 +51,27 @@ public class PlayerMovement : MonoBehaviour
         if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
             var updatedTargetCellPos = GetUpdatedTargetCellAndSprite();
+
+            if (horizontalPortalsTilemap.HasTile(CurrentCellPos))
+            {
+                if (transform.position.x < 0)
+                {
+                    CurrentCellPos = new Vector3Int(horizontalPortalsTilemap.cellBounds.xMax, CurrentCellPos.y, 0);
+                    updatedTargetCellPos = new Vector3Int(horizontalPortalsTilemap.cellBounds.xMax - 1, CurrentCellPos.y, 0);
+                }
+                else
+                {
+                    CurrentCellPos = new Vector3Int(horizontalPortalsTilemap.cellBounds.xMin, CurrentCellPos.y, 0);
+                    updatedTargetCellPos = new Vector3Int(horizontalPortalsTilemap.cellBounds.xMin + 1, CurrentCellPos.y, 0);
+                }
+            }
+
+            if (consumablesTilemap.HasTile(CurrentCellPos))
+            {
+                consumablesTilemap.SetTile(CurrentCellPos, null);
+                PlayerManager.DotsEaten++;
+            }
+
             if (updatedTargetCellPos != CurrentCellPos)
             {
                 TargetCellPos = updatedTargetCellPos;

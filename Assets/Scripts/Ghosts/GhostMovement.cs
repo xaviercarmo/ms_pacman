@@ -17,7 +17,7 @@ public class GhostMovement : MonoBehaviour
     public bool ShouldReverseMovement = false;
 
     //Private fields/properties
-    float timeToTravelGridSize = 0.15f;
+    float timeToTravelGridSize = 0.16f;
 
     Tweener tweener;
     Tween tween;

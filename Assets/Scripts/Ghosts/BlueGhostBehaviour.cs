@@ -12,6 +12,8 @@ public class BlueGhostBehaviour : GhostBehaviour
         this.redGhostMovementHandler = redGhostMovementHandler;
 
         scatterGoalCellPos = new Vector3Int(wallsTilemap.cellBounds.xMax, wallsTilemap.cellBounds.yMin, 0);
+        dotsBeforeRelease = 30;
+        secondsBeforeRelease = 15;
     }
 
     //Gets a vector from red ghost to cell 2 ahead of ms pacman, doubles that vector, and returns the cell the vector ends on

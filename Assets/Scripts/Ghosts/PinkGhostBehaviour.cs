@@ -8,6 +8,8 @@ public class PinkGhostBehaviour : GhostBehaviour
         : base(player, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap)
     {
         scatterGoalCellPos = new Vector3Int(wallsTilemap.cellBounds.xMin, wallsTilemap.cellBounds.yMax, 0);
+        dotsBeforeRelease = 10;
+        secondsBeforeRelease = 5;
     }
 
     //Returns the cell 3 spots ahead of ms pacman's current cell

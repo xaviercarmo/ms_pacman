@@ -27,6 +27,11 @@ public abstract class GhostBehaviour
     protected Tilemap downBlockersTilemap;
 
     protected Vector3Int scatterGoalCellPos;
+    protected int dotsBeforeRelease = 0;
+    protected int secondsBeforeRelease = 0;
+
+    //Private fields/properties
+    bool released = false;
 
     //Public Methods
     public GhostBehaviour(GameObject player, Grid levelGrid, Tilemap wallsTilemap, Tilemap upBlockersTilemap, Tilemap downBlockersTilemap)
@@ -50,9 +55,25 @@ public abstract class GhostBehaviour
         this.mode = mode;
     }
 
-    //Gets the next target cell based on ghost mode
+    //Gets the next target cell based on ghost mode, returns early if release conditions not met
     public Vector3Int GetNextTargetCellPos(Vector3Int previousCellPos, Vector3Int currentCellPos)
     {
+        if (PlayerManager.DotsEaten < dotsBeforeRelease && Time.time < secondsBeforeRelease)
+        {
+            return currentCellPos;
+        }
+        else if (!released)
+        {
+            if (MovementHandler.CurrentCellPos != GhostManager.GhostStartCellPos)
+            {
+                return GetNextTargetCellTowardsGoal(GhostManager.GhostStartCellPos, currentCellPos, currentCellPos);
+            }
+            else
+            {
+                released = true;
+            }
+        }
+
         switch (mode)
         {
             case GhostMode.Chase:

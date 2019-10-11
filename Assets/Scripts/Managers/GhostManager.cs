@@ -13,6 +13,8 @@ public class GhostManager : MonoBehaviour
     public Tilemap upBlockersTilemap;
     public Tilemap downBlockersTilemap;
 
+    public static Vector3 GhostStartWorldPos = new Vector3(0, 4);
+    public static Vector3Int GhostStartCellPos;
     public static int DotsEaten = 0;
 
     List<GhostBehaviour> ghostBehaviours;
@@ -26,9 +28,9 @@ public class GhostManager : MonoBehaviour
         (
             new (GhostMode, float)[]
             {
-                //(GhostMode.Scatter, 0f),
-                (GhostMode.Chase, 0f),//7f),
-                (GhostMode.Scatter, 2000f),
+                (GhostMode.Scatter, 0f),
+                (GhostMode.Chase, 7f),
+                (GhostMode.Scatter, 200f),
                 (GhostMode.Chase, 5f),
                 (GhostMode.Scatter, 20f),
                 (GhostMode.Chase, 5f),
@@ -40,8 +42,10 @@ public class GhostManager : MonoBehaviour
 
     void Start()
     {
+        GhostStartCellPos = levelGrid.WorldToCell(GhostStartWorldPos);
+
         var playerGameObject = GameObject.FindWithTag("Player");
-        SpawnGhost(RedGhostPrefab, new Vector3(0, 4), new RedGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
+        SpawnGhost(RedGhostPrefab, GhostStartWorldPos, new RedGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
         SpawnGhost(OrangeGhostPrefab, new Vector3(-2, 2), new OrangeGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
         SpawnGhost(PinkGhostPrefab, new Vector3(0, 2), new PinkGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
         SpawnGhost(BlueGhostPrefab, new Vector3(2, 2), new BlueGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap, ghostBehaviours[0].MovementHandler));

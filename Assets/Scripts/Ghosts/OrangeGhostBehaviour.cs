@@ -8,6 +8,8 @@ public class OrangeGhostBehaviour : GhostBehaviour
         : base(player, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap)
     {
         scatterGoalCellPos = new Vector3Int(wallsTilemap.cellBounds.xMin, wallsTilemap.cellBounds.yMin, 0);
+        dotsBeforeRelease = 45;
+        secondsBeforeRelease = 30;
     }
 
     protected override Vector3Int GetGoalCell()
