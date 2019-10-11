@@ -12,7 +12,13 @@ public class OrangeGhostBehaviour : GhostBehaviour
 
     protected override Vector3Int GetGoalCell()
     {
-        var playerCellPos = levelGrid.WorldToCell(player.transform.position);
-        return playerCellPos;
+        if (Vector3Int.Distance(playerMovement.CurrentCellPos, MovementHandler.CurrentCellPos) < 8)
+        {
+            return scatterGoalCellPos;
+        }
+        else
+        {
+            return playerMovement.CurrentCellPos;
+        }
     }
 }

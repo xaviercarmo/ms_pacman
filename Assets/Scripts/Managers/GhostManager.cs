@@ -44,7 +44,7 @@ public class GhostManager : MonoBehaviour
         SpawnGhost(RedGhostPrefab, new Vector3(0, 4), new RedGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
         SpawnGhost(OrangeGhostPrefab, new Vector3(-2, 2), new OrangeGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
         SpawnGhost(PinkGhostPrefab, new Vector3(0, 2), new PinkGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
-        SpawnGhost(BlueGhostPrefab, new Vector3(2, 2), new BlueGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
+        SpawnGhost(BlueGhostPrefab, new Vector3(2, 2), new BlueGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap, ghostBehaviours[0].MovementHandler));
 
         var upBlockersRenderer = upBlockersTilemap.GetComponent<TilemapRenderer>();
         upBlockersRenderer.enabled = false;

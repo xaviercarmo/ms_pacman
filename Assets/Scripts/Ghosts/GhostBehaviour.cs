@@ -119,5 +119,7 @@ public abstract class GhostBehaviour
         return result;
     }
 
+    public Vector3Int DebugGoalCell() => GetGoalCell();
+
     protected abstract Vector3Int GetGoalCell();
 }

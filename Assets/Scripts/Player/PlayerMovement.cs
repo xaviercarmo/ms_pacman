@@ -16,6 +16,10 @@ public class PlayerMovement : MonoBehaviour
     public Grid levelGrid;
     public Tilemap wallsTilemap;
 
+    public Vector3Int PreviousCellPos { get; private set; }
+    public Vector3Int CurrentCellPos { get; private set; }
+    public Vector3Int TargetCellPos { get; private set; }
+
     Vector3Int movement;
     float timeToTravelGridSize = 0.15f;
 
@@ -25,18 +29,12 @@ public class PlayerMovement : MonoBehaviour
 
     KeyCode lastMovementKeyApplied;
 
-    public Vector3Int PreviousCellPos { get; private set; }
-    public Vector3Int CurrentCellPos { get; private set; }
-    public Vector3Int TargetCellPos { get; private set; }
-
     bool flipX = false;
     bool flipY = false;
     Quaternion rotation = Quaternion.identity;
 
     void Start()
     {
-        //Time.timeScale = 0.5f;
-
         tweener = GetComponent<Tweener>();
         renderer = GetComponent<SpriteRenderer>();
 

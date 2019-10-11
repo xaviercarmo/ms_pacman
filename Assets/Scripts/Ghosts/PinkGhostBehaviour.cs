@@ -10,11 +10,7 @@ public class PinkGhostBehaviour : GhostBehaviour
         scatterGoalCellPos = new Vector3Int(wallsTilemap.cellBounds.xMin, wallsTilemap.cellBounds.yMax, 0);
     }
 
-    //Get the end goal cell the pink ghost wants to reach
+    //Returns the cell 3 spots ahead of ms pacman's current cell
     protected override Vector3Int GetGoalCell()
-    {
-        var playerCellPos = levelGrid.WorldToCell(player.transform.position);
-        return playerCellPos;
-        //up to this one
-    }
+        => playerMovement.CurrentCellPos + (playerMovement.TargetCellPos - playerMovement.CurrentCellPos) * 3;
 }

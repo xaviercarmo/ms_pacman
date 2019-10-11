@@ -10,6 +10,10 @@ public class GhostMovement : MonoBehaviour
     public Tilemap BlockersTilemap;
     public GhostBehaviour Behaviour;
 
+    public Vector3Int PreviousCellPos { get; private set; }
+    public Vector3Int CurrentCellPos { get; private set; }
+    public Vector3Int TargetCellPos { get; private set; }
+
     public bool ShouldReverseMovement = false;
 
     //Private fields/properties
@@ -20,38 +24,34 @@ public class GhostMovement : MonoBehaviour
     new SpriteRenderer renderer;
     Animator animator;
 
-    Vector3Int previousCellPos;
-    Vector3Int currentCellPos;
-    Vector3Int targetCellPos;
-
     void Start()
     {
         tweener = GetComponent<Tweener>();
         renderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
 
-        currentCellPos = LevelGrid.WorldToCell(transform.position);
-        targetCellPos = currentCellPos;
+        CurrentCellPos = LevelGrid.WorldToCell(transform.position);
+        TargetCellPos = CurrentCellPos;
     }
 
     void Update()
     {
         if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
-            previousCellPos = currentCellPos;
-            currentCellPos = targetCellPos;
+            PreviousCellPos = CurrentCellPos;
+            CurrentCellPos = TargetCellPos;
             UpdateTargetCellAndAnimation(ShouldReverseMovement);
 
-            if (targetCellPos != currentCellPos)
+            if (TargetCellPos != CurrentCellPos)
             {
-                if (currentCellPos - previousCellPos != targetCellPos - currentCellPos)
+                if (CurrentCellPos - PreviousCellPos != TargetCellPos - CurrentCellPos)
                 {
                     TweenToTargetCell();
                 }
                 else
                 {
-                    tween.StartPos = WallsTilemap.GetCellCenterWorld(currentCellPos);
-                    tween.EndPos = WallsTilemap.GetCellCenterWorld(targetCellPos);
+                    tween.StartPos = WallsTilemap.GetCellCenterWorld(CurrentCellPos);
+                    tween.EndPos = WallsTilemap.GetCellCenterWorld(TargetCellPos);
                     tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
                 }
             }
@@ -61,25 +61,32 @@ public class GhostMovement : MonoBehaviour
         else if (ShouldReverseMovement)
         {
             existingTween.Reverse();
-            (currentCellPos, targetCellPos) = (targetCellPos, currentCellPos);
+            (CurrentCellPos, TargetCellPos) = (TargetCellPos, CurrentCellPos);
 
             UpdateTargetCellAndAnimation(true);
 
             ShouldReverseMovement = false;
         }
+
+        //if (Behaviour is PinkGhostBehaviour || Behaviour is BlueGhostBehaviour)
+        //{
+        //    var currentCellCenter = WallsTilemap.GetCellCenterWorld(CurrentCellPos);
+        //    var goalCellCenter = WallsTilemap.GetCellCenterWorld(Behaviour.DebugGoalCell());
+        //    Debug.DrawLine(currentCellCenter, goalCellCenter, Color.red, 0f, false);
+        //}
     }
 
     void UpdateTargetCellAndAnimation(bool reverse = false)
     {
-        var oldDirectionVec = currentCellPos - previousCellPos;
+        var oldDirectionVec = CurrentCellPos - PreviousCellPos;
         oldDirectionVec.Clamp(Vector3Int.one * -1, Vector3Int.one);
 
         if (!reverse)
         {
-            targetCellPos = Behaviour.GetNextTargetCellPos(previousCellPos, currentCellPos);
+            TargetCellPos = Behaviour.GetNextTargetCellPos(PreviousCellPos, CurrentCellPos);
         }
 
-        var newDirectionVec = targetCellPos - currentCellPos;
+        var newDirectionVec = TargetCellPos - CurrentCellPos;
         newDirectionVec.Clamp(Vector3Int.one * -1, Vector3Int.one);
 
         if (oldDirectionVec != newDirectionVec || reverse)
@@ -110,8 +117,8 @@ public class GhostMovement : MonoBehaviour
 
     void TweenToTargetCell()
     {
-        var currentCellCenter = WallsTilemap.GetCellCenterWorld(currentCellPos);
-        var targetCellCenter = WallsTilemap.GetCellCenterWorld(targetCellPos);
+        var currentCellCenter = WallsTilemap.GetCellCenterWorld(CurrentCellPos);
+        var targetCellCenter = WallsTilemap.GetCellCenterWorld(TargetCellPos);
         tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
     }
 }
