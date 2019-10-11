@@ -13,14 +13,37 @@ public enum GameLevel
 public class GameManager : MonoBehaviour
 {
     public static GameLevel CurrentGameLevel { get; private set; }
+    public static Grid LevelGrid { get; private set; }
 
-    private void Awake()
+    void Awake()
     {
         DontDestroyOnLoad(gameObject);
 
         //later, load the main menu rather than this level
         CurrentGameLevel = GameLevel.OriginalLevel;
+        SceneManager.sceneLoaded += (Scene scene, LoadSceneMode mode) =>
+        {
+            //Time.timeScale = 0;
+            //Invoke("StartGame", 5f);
+        };
         SceneManager.LoadScene((int)CurrentGameLevel);
+    }
+
+    void Start()
+    {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
+    }
+
+    void Update()
+    {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
+    }
+
+    void StartGame()
+    {
+        Time.timeScale = 1f;
     }
 
     public static void SetLevel(GameLevel newGameLevel)

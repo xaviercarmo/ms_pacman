@@ -7,7 +7,8 @@ public enum Direction
     Up,
     Left,
     Down,
-    Right
+    Right,
+    None
 }
 
 public class PlayerMovement : MonoBehaviour
@@ -15,17 +16,18 @@ public class PlayerMovement : MonoBehaviour
     public Grid levelGrid;
     public Tilemap wallsTilemap;
 
+    public Vector3Int PreviousCellPos { get; private set; }
+    public Vector3Int CurrentCellPos { get; private set; }
+    public Vector3Int TargetCellPos { get; private set; }
+
     Vector3Int movement;
-    float timeToTravelGridSize = 2f;
+    float timeToTravelGridSize = 0.15f;
 
     Tweener tweener;
+    Tween tween;
     new SpriteRenderer renderer;
 
     KeyCode lastMovementKeyApplied;
-
-    Vector3Int previousCellPos;
-    Vector3Int currentCellPos;
-    Vector3Int targetCellPos;
 
     bool flipX = false;
     bool flipY = false;
@@ -36,24 +38,31 @@ public class PlayerMovement : MonoBehaviour
         tweener = GetComponent<Tweener>();
         renderer = GetComponent<SpriteRenderer>();
 
-        currentCellPos = levelGrid.WorldToCell(transform.position);
-        targetCellPos = currentCellPos + new Vector3Int(1, 0, 0);
+        CurrentCellPos = levelGrid.WorldToCell(transform.position);
+        TargetCellPos = CurrentCellPos + new Vector3Int(1, 0, 0);
 
         TweenToTargetCell();
     }
 
     void Update()
     {
-        if (!tweener.TweenExists(transform, out var existingTween))
+        if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
-            previousCellPos = currentCellPos;
-            currentCellPos = targetCellPos;
             var updatedTargetCellPos = GetUpdatedTargetCellAndSprite();
-
-            if (updatedTargetCellPos != currentCellPos)
+            if (updatedTargetCellPos != CurrentCellPos)
             {
-                targetCellPos = updatedTargetCellPos;
-                TweenToTargetCell();
+                TargetCellPos = updatedTargetCellPos;
+
+                if (CurrentCellPos - PreviousCellPos != TargetCellPos - CurrentCellPos)
+                {
+                    TweenToTargetCell();
+                }
+                else
+                {
+                    tween.StartPos = wallsTilemap.GetCellCenterWorld(CurrentCellPos);
+                    tween.EndPos = wallsTilemap.GetCellCenterWorld(TargetCellPos);
+                    tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
+                }
             }
         }
         else if (IsMovementKeyRetrograde())
@@ -61,24 +70,25 @@ public class PlayerMovement : MonoBehaviour
             lastMovementKeyApplied = PlayerInputManager.LastMovementKeyPressed;
 
             existingTween.Reverse();
-            (currentCellPos, targetCellPos) = (targetCellPos, currentCellPos);
+            (CurrentCellPos, TargetCellPos) = (TargetCellPos, CurrentCellPos);
 
             ReverseFlipAndRotation();
             ApplyFlipAndRotation();
         }
 
-        var currentCellCenter = wallsTilemap.GetCellCenterWorld(currentCellPos);
-        var targetCellCenter = wallsTilemap.GetCellCenterWorld(targetCellPos);
-        Debug.DrawLine(currentCellCenter, targetCellCenter, Color.red, 0f, false);
+        //var currentCellCenter = wallsTilemap.GetCellCenterWorld(CurrentCellPos);
+        //var targetCellCenter = wallsTilemap.GetCellCenterWorld(TargetCellPos);
+        //Debug.DrawLine(currentCellCenter, targetCellCenter, Color.red, 0f, false);
+        //Debug.DrawLine(tween.StartPos, tween.EndPos, Color.red, 0f, false);
     }
 
     void TweenToTargetCell()
     {
         ApplyFlipAndRotation();
 
-        var currentCellCenter = wallsTilemap.GetCellCenterWorld(currentCellPos);
-        var targetCellCenter = wallsTilemap.GetCellCenterWorld(targetCellPos);
-        tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize);
+        var currentCellCenter = wallsTilemap.GetCellCenterWorld(CurrentCellPos);
+        var targetCellCenter = wallsTilemap.GetCellCenterWorld(TargetCellPos);
+        tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
     }
 
     void ApplyFlipAndRotation()
@@ -103,7 +113,10 @@ public class PlayerMovement : MonoBehaviour
 
     Vector3Int GetUpdatedTargetCellAndSprite()
     {
-        var result = targetCellPos;
+        var result = CurrentCellPos;
+
+        PreviousCellPos = CurrentCellPos;
+        CurrentCellPos = TargetCellPos;
 
         if (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Up)
         {
@@ -115,7 +128,7 @@ public class PlayerMovement : MonoBehaviour
                 rotation = Quaternion.Euler(0, 0, 90);
             }
 
-            result = new Vector3Int(targetCellPos.x, targetCellPos.y + (int)levelGrid.cellSize.y, 0);
+            result = new Vector3Int(CurrentCellPos.x, CurrentCellPos.y + (int)levelGrid.cellSize.y, 0);
         }
         else if (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Left)
         {
@@ -127,7 +140,7 @@ public class PlayerMovement : MonoBehaviour
                 rotation = Quaternion.identity;
             }
 
-            result = new Vector3Int(targetCellPos.x - (int)levelGrid.cellSize.x, targetCellPos.y, 0);
+            result = new Vector3Int(CurrentCellPos.x - (int)levelGrid.cellSize.x, CurrentCellPos.y, 0);
         }
         else if (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Down)
         {
@@ -139,7 +152,7 @@ public class PlayerMovement : MonoBehaviour
                 rotation = Quaternion.Euler(0, 0, -90);
             }
 
-            result = new Vector3Int(targetCellPos.x, targetCellPos.y - (int)levelGrid.cellSize.y, 0);
+            result = new Vector3Int(CurrentCellPos.x, CurrentCellPos.y - (int)levelGrid.cellSize.y, 0);
         }
         else if (PlayerInputManager.LastMovementKeyPressed == PlayerInputManager.Controls.Right)
         {
@@ -151,27 +164,30 @@ public class PlayerMovement : MonoBehaviour
                 rotation = Quaternion.identity;
             }
 
-            result = new Vector3Int(targetCellPos.x + (int)levelGrid.cellSize.x, targetCellPos.y, 0);
+            result = new Vector3Int(CurrentCellPos.x + (int)levelGrid.cellSize.x, CurrentCellPos.y, 0);
         }
 
+        //if the target cell is a wall
         if (wallsTilemap.HasTile(result))
         {
             flipY = renderer.flipY;
             flipX = renderer.flipX;
             rotation = transform.rotation;
 
-            result = targetCellPos + (targetCellPos - previousCellPos);
+            //then try to continue the current motion
+            result = CurrentCellPos + (CurrentCellPos - PreviousCellPos);
 
+            //if there is a wall straight ahead
             if (wallsTilemap.HasTile(result))
             {
-                result = currentCellPos;
+                //then stand still
+                result = CurrentCellPos;
             }
         }
         else
         {
             lastMovementKeyApplied = PlayerInputManager.LastMovementKeyPressed;
         }
-
 
         return result;
     }

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
@@ -12,18 +11,16 @@ public class Tweener : MonoBehaviour
         activeTweens = new List<Tween>();
     }
 
-    void Start()
-    {
-    }
-
-    void Update()
+    //Late update used here to allow movement handlers to explicitly handle tween-completion which allows for smoother movement
+    void LateUpdate()
     {
         for (var i = activeTweens.Count - 1; i >= 0; i--)
         {
             var tween = activeTweens[i];
-            if (Vector3.Distance(tween.Target.position, tween.EndPos) > 0.1f)
+            float timeFraction = (Time.time - tween.StartTime) / tween.Duration;
+
+            if (timeFraction < 1)
             {
-                float timeFraction = (Time.time - tween.StartTime) / tween.Duration;
                 tween.Target.position = Vector3.Lerp(tween.StartPos, tween.EndPos, timeFraction);
             }
             else
@@ -47,14 +44,16 @@ public class Tweener : MonoBehaviour
         }
     }
 
-    public void AddTween(Transform targetObject, Vector3 startPos, Vector3 endPos, float duration, bool replaceIfTransformExists = false)
+    public Tween AddTween(Transform targetObject, Vector3 startPos, Vector3 endPos, float duration, bool replaceIfTransformExists = false)
     {
-        AddTween(new Tween(targetObject, startPos, endPos, Time.time, duration), replaceIfTransformExists);
+        var tween = new Tween(targetObject, startPos, endPos, Time.time, duration);
+        AddTween(tween, replaceIfTransformExists);
+        return tween;
     }
 
     public bool TweenExists(Transform target, out Tween existingTween)
     {
-        existingTween = activeTweens?.FirstOrDefault(tween => tween.Target == target) ?? default;
+        existingTween = activeTweens.FirstOrDefault(tween => tween.Target == target) ?? default;
         return existingTween != default(Tween);
     }
 }
