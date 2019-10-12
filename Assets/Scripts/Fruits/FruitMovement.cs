@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 public class FruitMovement : MonoBehaviour
 {
-    public FruitMode Mode;
+    public FruitMode Mode = FruitMode.Random;
 
-    Vector3Int initialCellPos;
+    Vector3Int exitCellPos;
     Vector3Int previousCellPos;
     Vector3Int currentCellPos;
     Vector3Int targetCellPos;
@@ -19,21 +19,21 @@ public class FruitMovement : MonoBehaviour
     void Awake()
     {
         tweener = GetComponent<Tweener>();
+        tweener.SuspendWhenGameSuspended = false;
     }
 
-    // Use this for initialization
     void Start()
     {
-        initialCellPos = GhostManager.Instance.LevelGrid.WorldToCell(transform.position);
+        var initialCellPos = GhostManager.Instance.LevelGrid.WorldToCell(transform.position);
+        exitCellPos = transform.position.x > 0
+            ? initialCellPos - new Vector3Int(2, 0, 0)
+            : initialCellPos + new Vector3Int(2, 0, 0);
         currentCellPos = initialCellPos;
-        targetCellPos = currentCellPos;
+        targetCellPos = initialCellPos;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameSuspended) { return; }
-
         if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
             previousCellPos = currentCellPos;
@@ -41,6 +41,12 @@ public class FruitMovement : MonoBehaviour
 
             if (GhostManager.Instance.HorizontalPortalsTilemap.HasTile(currentCellPos))
             {
+                if (Mode == FruitMode.Exit)
+                {
+                    Destroy(gameObject);
+                    return;
+                }
+
                 if (transform.position.x < 0)
                 {
                     currentCellPos = new Vector3Int(GhostManager.Instance.HorizontalPortalsTilemap.cellBounds.xMax - 1, currentCellPos.y, 0);
@@ -91,7 +97,7 @@ public class FruitMovement : MonoBehaviour
                 targetCellPos = candidatePositions[Random.Range(0, candidatePositions.Count)];
                 break;
             case FruitMode.Exit:
-                targetCellPos = GetNextTargetCellTowardsGoal(initialCellPos);
+                targetCellPos = GetNextTargetCellTowardsGoal(exitCellPos);
                 break;
         }
     }
@@ -139,5 +145,10 @@ public class FruitMovement : MonoBehaviour
         result.RemoveAll(pos => FruitManager.Instance.WallsTilemap.HasTile(pos) || pos == previousCellPos);
 
         return result;
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        FruitManager.Instance.ConsumeFruit(gameObject);
     }
 }

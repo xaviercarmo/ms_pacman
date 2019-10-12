@@ -358,6 +358,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bfcc5bf3a49bfb439b188477e64e8a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SuspendWhenGameSuspended: 1
 --- !u!58 &421588455
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1100,7 +1101,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e0a1e8887fa9a9459f69899ddeb2deb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  WallsTilemap: {fileID: 0}
+  WallsTilemap: {fileID: 1602406049}
   CherriesPrefab: {fileID: 1847339400126108688, guid: 40df2168f1d4e6a44abe919fba644e7f,
     type: 3}
 --- !u!1 &1602406046
