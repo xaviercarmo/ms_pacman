@@ -1,7 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
-using UnityEngine.Tilemaps;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public enum GhostMode
 {
@@ -15,16 +13,9 @@ public abstract class GhostBehaviour
 {
     //Public fields/properties
     public GhostMovement MovementHandler;
-    public GameObject Player;
 
     //Protected field/properties
     protected GhostMode mode = GhostMode.Idle;
-
-    protected PlayerMovement playerMovement;
-    protected Grid levelGrid;
-    protected Tilemap wallsTilemap;
-    protected Tilemap upBlockersTilemap;
-    protected Tilemap downBlockersTilemap;
 
     protected Vector3Int scatterGoalCellPos;
     protected int dotsBeforeRelease = 0;
@@ -32,17 +23,6 @@ public abstract class GhostBehaviour
 
     //Private fields/properties
     bool released = false;
-
-    //Public Methods
-    public GhostBehaviour(GameObject player, Grid levelGrid, Tilemap wallsTilemap, Tilemap upBlockersTilemap, Tilemap downBlockersTilemap)
-    {
-        Player = player;
-        playerMovement = player.GetComponent<PlayerMovement>();
-        this.levelGrid = levelGrid;
-        this.wallsTilemap = wallsTilemap;
-        this.upBlockersTilemap = upBlockersTilemap;
-        this.downBlockersTilemap = downBlockersTilemap;
-    }
 
     //Sets the ghost mode and reverses movement when previous mode was chase or scatter
     public void SetMode(GhostMode mode)
@@ -58,7 +38,7 @@ public abstract class GhostBehaviour
     //Gets the next target cell based on ghost mode, returns early if release conditions not met
     public Vector3Int GetNextTargetCellPos(Vector3Int previousCellPos, Vector3Int currentCellPos)
     {
-        if (PlayerManager.DotsEaten < dotsBeforeRelease && (secondsBeforeRelease -= Time.deltaTime) >= 0)
+        if (PlayerManager.Instance.DotsEaten < dotsBeforeRelease && (secondsBeforeRelease -= Time.deltaTime) >= 0)
         {
             return currentCellPos;
         }
@@ -133,10 +113,10 @@ public abstract class GhostBehaviour
 
         result.RemoveAll(c =>
         {
-            return wallsTilemap.HasTile(c.Pos)
+            return GhostManager.Instance.WallsTilemap.HasTile(c.Pos)
             || c.Pos == previousCellPos
-            || (c.Direction == Direction.Up && upBlockersTilemap.HasTile(currentCellPos))
-            || (c.Direction == Direction.Down && downBlockersTilemap.HasTile(currentCellPos));
+            || (c.Direction == Direction.Up && GhostManager.Instance.UpBlockersTilemap.HasTile(currentCellPos))
+            || (c.Direction == Direction.Down && GhostManager.Instance.DownBlockersTilemap.HasTile(currentCellPos));
         });
 
         return result;

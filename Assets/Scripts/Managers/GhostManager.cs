@@ -4,14 +4,18 @@ using UnityEngine.Tilemaps;
 
 public class GhostManager : MonoBehaviour
 {
+    public static GhostManager Instance { get; private set; }
+
     public GameObject RedGhostPrefab;
     public GameObject BlueGhostPrefab;
     public GameObject PinkGhostPrefab;
     public GameObject OrangeGhostPrefab;
-    public Grid levelGrid;
-    public Tilemap wallsTilemap;
-    public Tilemap upBlockersTilemap;
-    public Tilemap downBlockersTilemap;
+
+    public Grid LevelGrid;
+    public Tilemap WallsTilemap;
+    public Tilemap UpBlockersTilemap;
+    public Tilemap DownBlockersTilemap;
+    public Tilemap HorizontalPortalsTilemap;
 
     public static Vector3 RedGhostStartWorldPos = new Vector3(0, 4);
     public static Vector3Int RedGhostStartCellPos;
@@ -22,16 +26,25 @@ public class GhostManager : MonoBehaviour
     public static int DotsEaten = 0;
 
     List<GhostBehaviour> ghostBehaviours;
+
     float modeTime = 0;
     Queue<(GhostMode, float)> modeQueue;
 
     private void Awake()
     {
-        ghostBehaviours = new List<GhostBehaviour>();
-        modeQueue = new Queue<(GhostMode, float)>
-        (
-            new (GhostMode, float)[]
-            {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+
+            ghostBehaviours = new List<GhostBehaviour>();
+            modeQueue = new Queue<(GhostMode, float)>
+            (
+                new (GhostMode, float)[]
+                {
                 (GhostMode.Scatter, 0f),
                 (GhostMode.Chase, 7f),
                 (GhostMode.Scatter, 200f),
@@ -40,24 +53,25 @@ public class GhostManager : MonoBehaviour
                 (GhostMode.Chase, 5f),
                 (GhostMode.Scatter, float.PositiveInfinity),
                 (GhostMode.Chase, -1)
-            }
-        );
+                }
+            );
+        }
     }
 
     void Start()
     {
-        RedGhostStartCellPos = levelGrid.WorldToCell(RedGhostStartWorldPos);
+        RedGhostStartCellPos = LevelGrid.WorldToCell(RedGhostStartWorldPos);
 
         var playerGameObject = GameObject.FindWithTag("Player");
-        SpawnGhost(RedGhostPrefab, RedGhostStartWorldPos, new RedGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
-        SpawnGhost(BlueGhostPrefab, BlueGhostStartWorldPos, new BlueGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap, ghostBehaviours[0].MovementHandler));
-        SpawnGhost(PinkGhostPrefab, PinkGhostStartWorldPos, new PinkGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
-        SpawnGhost(OrangeGhostPrefab, OrangeGhostStartWorldPos, new OrangeGhostBehaviour(playerGameObject, levelGrid, wallsTilemap, upBlockersTilemap, downBlockersTilemap));
+        SpawnGhost(RedGhostPrefab, RedGhostStartWorldPos, new RedGhostBehaviour());
+        SpawnGhost(BlueGhostPrefab, BlueGhostStartWorldPos, new BlueGhostBehaviour(ghostBehaviours[0].MovementHandler));
+        SpawnGhost(PinkGhostPrefab, PinkGhostStartWorldPos, new PinkGhostBehaviour());
+        SpawnGhost(OrangeGhostPrefab, OrangeGhostStartWorldPos, new OrangeGhostBehaviour());
 
-        var upBlockersRenderer = upBlockersTilemap.GetComponent<TilemapRenderer>();
+        var upBlockersRenderer = UpBlockersTilemap.GetComponent<TilemapRenderer>();
         upBlockersRenderer.enabled = false;
 
-        var downBlockersRenderer = downBlockersTilemap.GetComponent<TilemapRenderer>();
+        var downBlockersRenderer = DownBlockersTilemap.GetComponent<TilemapRenderer>();
         downBlockersRenderer.enabled = false;
     }
 
@@ -79,8 +93,6 @@ public class GhostManager : MonoBehaviour
         ghostGameObject.name = behaviour.GetType().Name;
 
         var ghostMovementHandler = ghostGameObject.GetComponent<GhostMovement>();
-        ghostMovementHandler.LevelGrid = levelGrid;
-        ghostMovementHandler.WallsTilemap = wallsTilemap;
         ghostMovementHandler.Behaviour = behaviour;
         ghostMovementHandler.InitialWorldPos = worldPos;
 

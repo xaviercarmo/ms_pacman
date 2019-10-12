@@ -1,26 +1,36 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Tilemaps;
 
 public class PlayerManager : MonoBehaviour
 {
-    public static GameObject Player;
-    public static SpriteRenderer Renderer;
-    public static Animator Animator;
-    public static Tweener Tweener;
-    public static PlayerMovement MovementHandler;
+    public static PlayerManager Instance { get; private set; }
 
-    public static Vector3 HomeWorldPos = Vector3.zero;
-    public static int DotsEaten = 0;
+    public SpriteRenderer Renderer;
+    public Animator Animator;
+    public Tweener Tweener;
+    public PlayerMovement MovementHandler;
 
-    static int lives = 3;
+    public Grid LevelGrid;
+    public Tilemap WallsTilemap;
+    public Tilemap ConsumablesTilemap;
+    public Tilemap HorizontalPortalsTilemap;
+
+    public Vector3 HomeWorldPos = Vector3.zero;
+    public int DotsEaten = 0;
+
+    int lives = 3;
 
     void Awake()
     {
-        Player = gameObject;
-        Renderer = GetComponent<SpriteRenderer>();
-        Animator = GetComponent<Animator>();
-        Tweener = GetComponent<Tweener>();
-        MovementHandler = GetComponent<PlayerMovement>();
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
     }
 
     void Start()
@@ -31,7 +41,7 @@ public class PlayerManager : MonoBehaviour
     {
     }
 
-    public static void ResetState()
+    public void ResetState()
     {
         MovementHandler.ResetState();
         lives--;
