@@ -217,7 +217,8 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //if the target cell is a wall
-        if (PlayerManager.Instance.WallsTilemap.HasTile(result))
+        var isTargetDownwards = result.y < CurrentCellPos.y;
+        if (PlayerManager.Instance.WallsTilemap.HasTile(result) || (isTargetDownwards && PlayerManager.Instance.DownBlockersTilemap.HasTile(result)))
         {
             flipY = PlayerManager.Instance.Renderer.flipY;
             flipX = PlayerManager.Instance.Renderer.flipX;
@@ -225,9 +226,10 @@ public class PlayerMovement : MonoBehaviour
 
             //then try to continue the current motion
             result = CurrentCellPos + (CurrentCellPos - PreviousCellPos);
+            isTargetDownwards = result.y < CurrentCellPos.y;
 
-            //if there is a wall straight ahead
-            if (PlayerManager.Instance.WallsTilemap.HasTile(result))
+            //if there is a wall straight ahead or downwards motion is blocked
+            if (PlayerManager.Instance.WallsTilemap.HasTile(result) || (isTargetDownwards && PlayerManager.Instance.DownBlockersTilemap.HasTile(result)))
             {
                 //then stand still
                 result = CurrentCellPos;

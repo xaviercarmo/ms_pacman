@@ -179,6 +179,8 @@ public class GhostMovement : MonoBehaviour
         }
         else
         {
+            GhostManager.Instance.ConsecutiveGhostsEaten++;
+            PlayerManager.Instance.Points += 200 * GhostManager.Instance.ConsecutiveGhostsEaten;
             Behaviour.SetMode(GhostMode.RunningHome);
         }
     }

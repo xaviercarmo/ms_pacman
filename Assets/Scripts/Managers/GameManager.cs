@@ -12,19 +12,16 @@ public enum GameLevel
 
 public class GameManager : MonoBehaviour
 {
-    public static GameLevel CurrentGameLevel { get; private set; }
-    public static Grid LevelGrid { get; private set; }
+    public static GameLevel CurrentGameLevel { get; private set; } = GameLevel.MainMenu;
+    public AudioSource BackgroundMusic;
+
+    float maxBackgroundMusicVolume = 0.3f;
 
     void Awake()
     {
         DontDestroyOnLoad(gameObject);
 
-        //later, load the main menu rather than this level
-        CurrentGameLevel = GameLevel.OriginalLevel;
-        SceneManager.sceneLoaded += (Scene scene, LoadSceneMode mode) =>
-        {
-        };
-        SceneManager.LoadScene((int)CurrentGameLevel);
+        StartCoroutine(FadeInBackgroundMusic());
     }
 
     void Start()
@@ -33,6 +30,10 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            BackgroundMusic.mute = !BackgroundMusic.mute;
+        }
     }
 
     void StartGame()
@@ -47,5 +48,18 @@ public class GameManager : MonoBehaviour
             SceneManager.LoadSceneAsync((int)newGameLevel);
             CurrentGameLevel = newGameLevel;
         }
+    }
+
+    IEnumerator FadeInBackgroundMusic()
+    {
+        BackgroundMusic.volume = 0;
+        BackgroundMusic.Play();
+        while (BackgroundMusic.volume < maxBackgroundMusicVolume)
+        {
+            BackgroundMusic.volume += 0.1f * Time.deltaTime;
+            yield return null;
+        }
+
+        BackgroundMusic.volume = maxBackgroundMusicVolume;
     }
 }

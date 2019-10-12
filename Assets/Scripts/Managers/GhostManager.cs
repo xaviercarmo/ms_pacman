@@ -22,6 +22,8 @@ public class GhostManager : MonoBehaviour
     public Tilemap HorizontalPortalsTilemap;
     public Tilemap GhostSlowersTilemap;
 
+    public int ConsecutiveGhostsEaten = 0;
+
     public static Vector3 RedGhostStartWorldPos = new Vector3(0, 4);
     public static Vector3Int RedGhostStartCellPos;
     public static Vector3 BlueGhostStartWorldPos = new Vector3(-2, 2);
@@ -123,6 +125,11 @@ public class GhostManager : MonoBehaviour
     {
         if (mode == GhostMode.Frightened)
         {
+            if (!frightenedMode)
+            {
+                ConsecutiveGhostsEaten = 0;
+            }
+
             frightenedMode = true;
 
             if (setGhostModeCoroutine != null)
@@ -140,12 +147,14 @@ public class GhostManager : MonoBehaviour
     {
         yield return new WaitForSeconds(frightenDuration);
         frightenedMode = false;
+        ConsecutiveGhostsEaten = 0;
         ChangeGhostMode(CurrentModeInQueue);
     }
 
     public void ResetState()
     {
         frightenedMode = false;
+        ConsecutiveGhostsEaten = 0;
 
         if (setGhostModeCoroutine != null)
         {

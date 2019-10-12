@@ -5,9 +5,11 @@ public class OriginalLevelManager : MonoBehaviour
 {
     public static OriginalLevelManager Instance { get; private set; }
 
-    public bool GameSuspended { get; private set; } = false;
-    public float GameResetTime = 5;
+    public bool GameSuspended { get; private set; } = true;
+    public float GameResetTime = 3;
     public GhostManager GhostManager;
+
+    bool gameStarted = false;
 
     void Awake()
     {
@@ -24,13 +26,36 @@ public class OriginalLevelManager : MonoBehaviour
 
     void Start()
     {
+        //Instance.Invoke("ResumeGame", GameResetTime);
     }
 
     void Update()
     {
+        if (!gameStarted)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                gameStarted = true;
+                GameSuspended = false;
+            }
+
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            GameSuspended = !GameSuspended;
+        }
+
         if (PlayerManager.Instance.DotsEaten == 152)
         {
-            Time.timeScale = 0;
+            //game over
+            GameSuspended = true;
+        }
+        else if (PlayerManager.Instance.Lives <= 0)
+        {
+            //game over
+            GameSuspended = true;
         }
     }
 

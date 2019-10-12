@@ -58,7 +58,17 @@ public class FruitManager : MonoBehaviour
 
     IEnumerator MakeFruitExitAfterDuration(GameObject fruitGameObject, float duration)
     {
-        yield return new WaitForSeconds(duration);
+        float elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            if (!OriginalLevelManager.Instance.GameSuspended)
+            {
+                elapsedTime += Time.deltaTime;
+            }
+
+            yield return null;
+        }
+
         if (fruitGameObject != null) { fruitGameObject.GetComponent<FruitMovement>().Mode = FruitMode.Exit; }
     }
 
