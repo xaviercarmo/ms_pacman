@@ -64,12 +64,6 @@ public class GhostMovement : MonoBehaviour
             {
                 UpdateTargetCellAndAnimation(ShouldReverseMovement);
 
-                //if (GhostManager.Instance.LevelGrid.WorldToCell(transform.position) == GhostManager.Instance.LevelGrid.WorldToCell(PlayerManager.Instance.gameObject.transform.position))
-                //{
-                //    OriginalLevelManager.Instance.ResetLevel();
-                //    return;
-                //}
-
                 if (TargetCellPos != CurrentCellPos)
                 {
                     var durationMultiplier = GhostManager.Instance.GhostSlowersTilemap.HasTile(TargetCellPos) ? 1.75f : 1f;
@@ -156,5 +150,10 @@ public class GhostMovement : MonoBehaviour
         TargetCellPos = CurrentCellPos;
 
         animator.SetTrigger("StandStill");
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        OriginalLevelManager.Instance.ResetLevel();
     }
 }
