@@ -5,10 +5,9 @@ using UnityEngine.Tilemaps;
 public class GhostMovement : MonoBehaviour
 {
     //Public fields/properties
-    public Grid LevelGrid;
-    public Tilemap WallsTilemap;
-    public Tilemap BlockersTilemap;
     public GhostBehaviour Behaviour;
+
+    public Vector3 InitialWorldPos;
 
     public Vector3Int PreviousCellPos { get; private set; }
     public Vector3Int CurrentCellPos { get; private set; }
@@ -17,30 +16,42 @@ public class GhostMovement : MonoBehaviour
     public bool ShouldReverseMovement = false;
 
     //Private fields/properties
-    float timeToTravelGridSize = 0.15f;
+    float timeToTravelGridSize = 0.16f;
 
     Tweener tweener;
     Tween tween;
     new SpriteRenderer renderer;
     Animator animator;
 
-    void Start()
+    void Awake()
     {
         tweener = GetComponent<Tweener>();
         renderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+    }
 
-        CurrentCellPos = LevelGrid.WorldToCell(transform.position);
+    void Start()
+    {
+        CurrentCellPos = GhostManager.Instance.LevelGrid.WorldToCell(transform.position);
         TargetCellPos = CurrentCellPos;
     }
 
     void Update()
     {
+        if (OriginalLevelManager.Instance.GameResetting) { return; }
+
         if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
             PreviousCellPos = CurrentCellPos;
             CurrentCellPos = TargetCellPos;
+
             UpdateTargetCellAndAnimation(ShouldReverseMovement);
+
+            if (GhostManager.Instance.LevelGrid.WorldToCell(transform.position) == GhostManager.Instance.LevelGrid.WorldToCell(PlayerManager.Instance.gameObject.transform.position))
+            {
+                OriginalLevelManager.Instance.ResetLevel();
+                return;
+            }
 
             if (TargetCellPos != CurrentCellPos)
             {
@@ -50,8 +61,8 @@ public class GhostMovement : MonoBehaviour
                 }
                 else
                 {
-                    tween.StartPos = WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-                    tween.EndPos = WallsTilemap.GetCellCenterWorld(TargetCellPos);
+                    tween.StartPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
+                    tween.EndPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
                     tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
                 }
             }
@@ -117,8 +128,20 @@ public class GhostMovement : MonoBehaviour
 
     void TweenToTargetCell()
     {
-        var currentCellCenter = WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-        var targetCellCenter = WallsTilemap.GetCellCenterWorld(TargetCellPos);
+        var currentCellCenter = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
+        var targetCellCenter = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
         tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
+    }
+
+    public void ResetState()
+    {
+        tween = null;
+        tweener.FlushTweens();
+
+        transform.position = InitialWorldPos;
+        CurrentCellPos = GhostManager.Instance.LevelGrid.WorldToCell(InitialWorldPos);
+        TargetCellPos = CurrentCellPos;
+
+        animator.SetTrigger("StandStill");
     }
 }
