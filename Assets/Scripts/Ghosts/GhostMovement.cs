@@ -45,29 +45,47 @@ public class GhostMovement : MonoBehaviour
             PreviousCellPos = CurrentCellPos;
             CurrentCellPos = TargetCellPos;
 
-            UpdateTargetCellAndAnimation(ShouldReverseMovement);
-
-            if (GhostManager.Instance.LevelGrid.WorldToCell(transform.position) == GhostManager.Instance.LevelGrid.WorldToCell(PlayerManager.Instance.gameObject.transform.position))
+            if (GhostManager.Instance.HorizontalPortalsTilemap.HasTile(CurrentCellPos))
             {
-                OriginalLevelManager.Instance.ResetLevel();
-                return;
-            }
-
-            if (TargetCellPos != CurrentCellPos)
-            {
-                if (CurrentCellPos - PreviousCellPos != TargetCellPos - CurrentCellPos)
+                if (transform.position.x < 0)
                 {
-                    TweenToTargetCell();
+                    CurrentCellPos = new Vector3Int(GhostManager.Instance.HorizontalPortalsTilemap.cellBounds.xMax - 1, CurrentCellPos.y, 0);
+                    TargetCellPos = new Vector3Int(GhostManager.Instance.HorizontalPortalsTilemap.cellBounds.xMax - 2, CurrentCellPos.y, 0);
                 }
                 else
                 {
-                    tween.StartPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-                    tween.EndPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
-                    tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
+                    CurrentCellPos = new Vector3Int(GhostManager.Instance.HorizontalPortalsTilemap.cellBounds.xMin, CurrentCellPos.y, 0);
+                    TargetCellPos = new Vector3Int(GhostManager.Instance.HorizontalPortalsTilemap.cellBounds.xMin + 1, CurrentCellPos.y, 0);
                 }
-            }
 
-            ShouldReverseMovement = false;
+                TweenToTargetCell();
+            }
+            else
+            {
+                UpdateTargetCellAndAnimation(ShouldReverseMovement);
+
+                //if (GhostManager.Instance.LevelGrid.WorldToCell(transform.position) == GhostManager.Instance.LevelGrid.WorldToCell(PlayerManager.Instance.gameObject.transform.position))
+                //{
+                //    OriginalLevelManager.Instance.ResetLevel();
+                //    return;
+                //}
+
+                if (TargetCellPos != CurrentCellPos)
+                {
+                    if (CurrentCellPos - PreviousCellPos != TargetCellPos - CurrentCellPos)
+                    {
+                        TweenToTargetCell();
+                    }
+                    else
+                    {
+                        tween.StartPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
+                        tween.EndPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
+                        tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
+                    }
+                }
+
+                ShouldReverseMovement = false;
+            }
         }
         else if (ShouldReverseMovement)
         {
@@ -78,13 +96,6 @@ public class GhostMovement : MonoBehaviour
 
             ShouldReverseMovement = false;
         }
-
-        //if (Behaviour is PinkGhostBehaviour || Behaviour is BlueGhostBehaviour)
-        //{
-        //    var currentCellCenter = WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-        //    var goalCellCenter = WallsTilemap.GetCellCenterWorld(Behaviour.DebugGoalCell());
-        //    Debug.DrawLine(currentCellCenter, goalCellCenter, Color.red, 0f, false);
-        //}
     }
 
     void UpdateTargetCellAndAnimation(bool reverse = false)
