@@ -81,7 +81,7 @@ public class GhostManager : MonoBehaviour
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameResetting) { return; }
+        if (OriginalLevelManager.Instance.GameSuspended) { return; }
 
         modeTime += Time.deltaTime;
         if (modeTime >= modeQueue.Peek().Item2)

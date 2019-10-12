@@ -14,7 +14,7 @@ public class Tweener : MonoBehaviour
     //Late update used here to allow movement handlers to explicitly handle tween-completion which allows for smoother movement
     void LateUpdate()
     {
-        if (OriginalLevelManager.Instance.GameResetting) { return; } //need to make the tween start time reset after game resetting
+        if (OriginalLevelManager.Instance.GameSuspended) { return; } //need to make the tween start time reset after game resetting
 
         for (var i = activeTweens.Count - 1; i >= 0; i--)
         {

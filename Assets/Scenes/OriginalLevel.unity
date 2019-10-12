@@ -209,7 +209,6 @@ GameObject:
   - component: {fileID: 421588455}
   - component: {fileID: 421588452}
   - component: {fileID: 421588453}
-  - component: {fileID: 421588454}
   - component: {fileID: 421588451}
   - component: {fileID: 421588450}
   m_Layer: 0
@@ -345,6 +344,7 @@ MonoBehaviour:
   ConsumablesTilemap: {fileID: 1954793856}
   HorizontalPortalsTilemap: {fileID: 928310325}
   HomeWorldPos: {x: 0, y: 0, z: 0}
+  Score: 0
   DotsEaten: 0
 --- !u!114 &421588453
 MonoBehaviour:
@@ -356,18 +356,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7bfcc5bf3a49bfb439b188477e64e8a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &421588454
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 421588446}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1dfe09242c4224d46b2aaacefe1a154c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!58 &421588455
@@ -1008,6 +996,7 @@ GameObject:
   - component: {fileID: 1590670902}
   - component: {fileID: 1590670903}
   - component: {fileID: 1590670904}
+  - component: {fileID: 1590670905}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -1069,6 +1058,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GameResetTime: 5
   GhostManager: {fileID: 0}
+--- !u!114 &1590670905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1590670901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e0a1e8887fa9a9459f69899ddeb2deb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CherriesPrefab: {fileID: 1847339400126108688, guid: 40df2168f1d4e6a44abe919fba644e7f,
+    type: 3}
 --- !u!1 &1602406046
 GameObject:
   m_ObjectHideFlags: 0

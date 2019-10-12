@@ -38,7 +38,7 @@ public class GhostMovement : MonoBehaviour
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameResetting) { return; }
+        if (OriginalLevelManager.Instance.GameSuspended) { return; }
 
         if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {

@@ -13,12 +13,6 @@ public enum Direction
 
 public class PlayerMovement : MonoBehaviour
 {
-    //get rid of these
-    //public Grid levelGrid;
-    //public Tilemap wallsTilemap;
-    //public Tilemap consumablesTilemap;
-    //public Tilemap horizontalPortalsTilemap;
-
     public Vector3Int PreviousCellPos { get; private set; }
     public Vector3Int CurrentCellPos { get; private set; }
     public Vector3Int TargetCellPos { get; private set; }
@@ -47,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameResetting) { return; }
+        if (OriginalLevelManager.Instance.GameSuspended) { return; }
 
         if (!PlayerManager.Instance.Tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
@@ -76,6 +70,7 @@ public class PlayerMovement : MonoBehaviour
                 if (PlayerManager.Instance.ConsumablesTilemap.HasTile(CurrentCellPos))
                 {
                     PlayerManager.Instance.ConsumablesTilemap.SetTile(CurrentCellPos, null);
+                    PlayerManager.Instance.Score += 10;
                     PlayerManager.Instance.DotsEaten++;
                 }
 
