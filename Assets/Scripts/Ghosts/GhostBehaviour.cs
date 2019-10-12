@@ -100,7 +100,7 @@ public abstract class GhostBehaviour
         return currentCellPos;
     }
 
-    // Assumes all surrounding cells are candidates, then prunes previous cell and wall cells
+    // Assumes all surrounding cells are candidates, then prunes previous cell, wall cells, and cells that are direction-blocked for ghosts
     protected List<(Direction Direction, Vector3Int Pos)> GetCandidateCellTargets(Vector3Int previousCellPos, Vector3Int currentCellPos)
     {
         var result = new List<(Direction Direction, Vector3Int Pos)>()

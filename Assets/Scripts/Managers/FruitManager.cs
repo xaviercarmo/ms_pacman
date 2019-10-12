@@ -1,10 +1,19 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
+
+public enum FruitMode
+{
+    Idle,
+    Random,
+    Exit
+}
 
 public class FruitManager : MonoBehaviour
 {
     public static FruitManager Instance { get; private set; }
 
+    public Tilemap WallsTilemap;
     public GameObject CherriesPrefab;
 
     bool SpawnedCherries = false;
