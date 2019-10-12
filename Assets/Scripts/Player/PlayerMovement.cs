@@ -107,11 +107,6 @@ public class PlayerMovement : MonoBehaviour
             ReverseFlipAndRotation();
             ApplyFlipAndRotation();
         }
-
-        //var currentCellCenter = wallsTilemap.GetCellCenterWorld(CurrentCellPos);
-        //var targetCellCenter = wallsTilemap.GetCellCenterWorld(TargetCellPos);
-        //Debug.DrawLine(currentCellCenter, targetCellCenter, Color.red, 0f, false);
-        //Debug.DrawLine(tween.StartPos, tween.EndPos, Color.red, 0f, false);
     }
 
     public void ResetState()

@@ -45,29 +45,43 @@ public class GhostMovement : MonoBehaviour
             PreviousCellPos = CurrentCellPos;
             CurrentCellPos = TargetCellPos;
 
-            UpdateTargetCellAndAnimation(ShouldReverseMovement);
-
-            if (GhostManager.Instance.LevelGrid.WorldToCell(transform.position) == GhostManager.Instance.LevelGrid.WorldToCell(PlayerManager.Instance.gameObject.transform.position))
+            if (GhostManager.Instance.HorizontalPortalsTilemap.HasTile(CurrentCellPos))
             {
-                OriginalLevelManager.Instance.ResetLevel();
-                return;
-            }
-
-            if (TargetCellPos != CurrentCellPos)
-            {
-                if (CurrentCellPos - PreviousCellPos != TargetCellPos - CurrentCellPos)
+                if (transform.position.x < 0)
                 {
-                    TweenToTargetCell();
+                    CurrentCellPos = new Vector3Int(GhostManager.Instance.HorizontalPortalsTilemap.cellBounds.xMax - 1, CurrentCellPos.y, 0);
+                    TargetCellPos = new Vector3Int(GhostManager.Instance.HorizontalPortalsTilemap.cellBounds.xMax - 2, CurrentCellPos.y, 0);
                 }
                 else
                 {
-                    tween.StartPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-                    tween.EndPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
-                    tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
+                    CurrentCellPos = new Vector3Int(GhostManager.Instance.HorizontalPortalsTilemap.cellBounds.xMin, CurrentCellPos.y, 0);
+                    TargetCellPos = new Vector3Int(GhostManager.Instance.HorizontalPortalsTilemap.cellBounds.xMin + 1, CurrentCellPos.y, 0);
                 }
-            }
 
-            ShouldReverseMovement = false;
+                TweenToTargetCell(1.75f);
+            }
+            else
+            {
+                UpdateTargetCellAndAnimation(ShouldReverseMovement);
+
+                if (TargetCellPos != CurrentCellPos)
+                {
+                    var durationMultiplier = GhostManager.Instance.GhostSlowersTilemap.HasTile(TargetCellPos) ? 1.75f : 1f;
+                    if (CurrentCellPos - PreviousCellPos != TargetCellPos - CurrentCellPos)
+                    {
+                        TweenToTargetCell(durationMultiplier);
+                    }
+                    else
+                    {
+                        tween.StartPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
+                        tween.EndPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
+                        tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
+                        tween.Duration = timeToTravelGridSize * durationMultiplier;
+                    }
+                }
+
+                ShouldReverseMovement = false;
+            }
         }
         else if (ShouldReverseMovement)
         {
@@ -78,13 +92,6 @@ public class GhostMovement : MonoBehaviour
 
             ShouldReverseMovement = false;
         }
-
-        //if (Behaviour is PinkGhostBehaviour || Behaviour is BlueGhostBehaviour)
-        //{
-        //    var currentCellCenter = WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-        //    var goalCellCenter = WallsTilemap.GetCellCenterWorld(Behaviour.DebugGoalCell());
-        //    Debug.DrawLine(currentCellCenter, goalCellCenter, Color.red, 0f, false);
-        //}
     }
 
     void UpdateTargetCellAndAnimation(bool reverse = false)
@@ -126,11 +133,11 @@ public class GhostMovement : MonoBehaviour
 
     }
 
-    void TweenToTargetCell()
+    void TweenToTargetCell(float durationMultiplier = 1)
     {
         var currentCellCenter = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
         var targetCellCenter = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
-        tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
+        tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize * durationMultiplier, true);
     }
 
     public void ResetState()
@@ -143,5 +150,10 @@ public class GhostMovement : MonoBehaviour
         TargetCellPos = CurrentCellPos;
 
         animator.SetTrigger("StandStill");
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        OriginalLevelManager.Instance.ResetLevel();
     }
 }

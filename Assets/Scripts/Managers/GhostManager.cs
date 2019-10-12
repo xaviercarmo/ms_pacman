@@ -16,6 +16,7 @@ public class GhostManager : MonoBehaviour
     public Tilemap UpBlockersTilemap;
     public Tilemap DownBlockersTilemap;
     public Tilemap HorizontalPortalsTilemap;
+    public Tilemap GhostSlowersTilemap;
 
     public static Vector3 RedGhostStartWorldPos = new Vector3(0, 4);
     public static Vector3Int RedGhostStartCellPos;
@@ -73,6 +74,9 @@ public class GhostManager : MonoBehaviour
 
         var downBlockersRenderer = DownBlockersTilemap.GetComponent<TilemapRenderer>();
         downBlockersRenderer.enabled = false;
+
+        var ghostSlowersRenderer = GhostSlowersTilemap.GetComponent<TilemapRenderer>();
+        ghostSlowersRenderer.enabled = false;
     }
 
     void Update()
