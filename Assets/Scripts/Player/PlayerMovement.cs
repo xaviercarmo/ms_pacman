@@ -72,6 +72,17 @@ public class PlayerMovement : MonoBehaviour
                     PlayerManager.Instance.DotsTilemap.SetTile(CurrentCellPos, null);
                     PlayerManager.Instance.Points += 10;
                     PlayerManager.Instance.DotsEaten++;
+
+                    if (!PlayerManager.Instance.PlayerAudio.isPlaying)
+                    {
+                        PlayerManager.Instance.PlayerAudio.clip = PlayerManager.Instance.EatDotClip;
+                        PlayerManager.Instance.PlayerAudio.loop = true;
+                        PlayerManager.Instance.PlayerAudio.Play();
+                    }
+                }
+                else
+                {
+                    PlayerManager.Instance.PlayerAudio.loop = false;
                 }
 
                 if (updatedTargetCellPos != CurrentCellPos)
