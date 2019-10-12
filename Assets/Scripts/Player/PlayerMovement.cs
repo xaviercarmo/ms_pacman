@@ -67,10 +67,10 @@ public class PlayerMovement : MonoBehaviour
             {
                 var updatedTargetCellPos = GetUpdatedTargetCellAndSprite();
 
-                if (PlayerManager.Instance.ConsumablesTilemap.HasTile(CurrentCellPos))
+                if (PlayerManager.Instance.DotsTilemap.HasTile(CurrentCellPos))
                 {
-                    PlayerManager.Instance.ConsumablesTilemap.SetTile(CurrentCellPos, null);
-                    PlayerManager.Instance.Score += 10;
+                    PlayerManager.Instance.DotsTilemap.SetTile(CurrentCellPos, null);
+                    PlayerManager.Instance.Points += 10;
                     PlayerManager.Instance.DotsEaten++;
                 }
 
@@ -118,11 +118,12 @@ public class PlayerMovement : MonoBehaviour
         CurrentCellPos = PlayerManager.Instance.LevelGrid.WorldToCell(PlayerManager.Instance.HomeWorldPos);
         TargetCellPos = CurrentCellPos + new Vector3Int(1, 0, 0);
 
+        lastMovementKeyApplied = PlayerInputManager.LastMovementKeyPressed;
         flipX = false;
         flipY = false;
-
         rotation = Quaternion.identity;
         ApplyFlipAndRotation();
+
         transform.position = PlayerManager.Instance.HomeWorldPos;
 
         PlayerManager.Instance.Tweener.FlushTweens();

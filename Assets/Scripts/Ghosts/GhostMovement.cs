@@ -16,6 +16,7 @@ public class GhostMovement : MonoBehaviour
     public bool ShouldReverseMovement = false;
 
     //Private fields/properties
+    float baseTimeToTravelGridSize = 0.16f;
     float timeToTravelGridSize = 0.16f;
 
     Tweener tweener;
@@ -38,7 +39,21 @@ public class GhostMovement : MonoBehaviour
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameSuspended) { return; }
+        if (OriginalLevelManager.Instance.GameSuspended) { UpdateAnimation(); return; }
+
+        //Change the movement speed based on the current mode, faster when running home after being caught, slower when running away
+        switch (Behaviour.Mode)
+        {
+            case GhostMode.Frightened:
+                timeToTravelGridSize = baseTimeToTravelGridSize * 1.5f;
+                break;
+            case GhostMode.RunningHome:
+                timeToTravelGridSize = baseTimeToTravelGridSize * 0.5f;
+                break;
+            default:
+                timeToTravelGridSize = baseTimeToTravelGridSize;
+                break;
+        }
 
         if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
@@ -62,7 +77,10 @@ public class GhostMovement : MonoBehaviour
             }
             else
             {
-                UpdateTargetCellAndAnimation(ShouldReverseMovement);
+                if (!ShouldReverseMovement)
+                {
+                    TargetCellPos = Behaviour.GetNextTargetCellPos(PreviousCellPos, CurrentCellPos);
+                }
 
                 if (TargetCellPos != CurrentCellPos)
                 {
@@ -88,40 +106,42 @@ public class GhostMovement : MonoBehaviour
             existingTween.Reverse();
             (CurrentCellPos, TargetCellPos) = (TargetCellPos, CurrentCellPos);
 
-            UpdateTargetCellAndAnimation(true);
-
             ShouldReverseMovement = false;
         }
+
+        UpdateAnimation();
     }
 
-    void UpdateTargetCellAndAnimation(bool reverse = false)
+    void UpdateAnimation()
     {
-        var oldDirectionVec = CurrentCellPos - PreviousCellPos;
-        oldDirectionVec.Clamp(Vector3Int.one * -1, Vector3Int.one);
+        var directionVec = TargetCellPos - CurrentCellPos;
 
-        if (!reverse)
+        if (Behaviour.Mode == GhostMode.Frightened)
         {
-            TargetCellPos = Behaviour.GetNextTargetCellPos(PreviousCellPos, CurrentCellPos);
+            animator.SetTrigger("RunAway");
+            animator.speed = 0.5f;
         }
-
-        var newDirectionVec = TargetCellPos - CurrentCellPos;
-        newDirectionVec.Clamp(Vector3Int.one * -1, Vector3Int.one);
-
-        if (oldDirectionVec != newDirectionVec || reverse)
+        else if (Behaviour.Mode == GhostMode.RunningHome)
         {
-            if (newDirectionVec.x > 0)
+            animator.SetTrigger("RunHome");
+            animator.speed = 1f;
+        }
+        else
+        {
+            animator.speed = 1;
+            if (directionVec.x > 0)
             {
                 animator.SetTrigger("TurnRight");
             }
-            else if (newDirectionVec.x < 0)
+            else if (directionVec.x < 0)
             {
                 animator.SetTrigger("TurnLeft");
             }
-            else if (newDirectionVec.y > 0)
+            else if (directionVec.y > 0)
             {
                 animator.SetTrigger("TurnUp");
             }
-            else if (newDirectionVec.y < 0)
+            else if (directionVec.y < 0)
             {
                 animator.SetTrigger("TurnDown");
             }
@@ -130,7 +150,6 @@ public class GhostMovement : MonoBehaviour
                 animator.SetTrigger("StandStill");
             }
         }
-
     }
 
     void TweenToTargetCell(float durationMultiplier = 1)
@@ -154,6 +173,13 @@ public class GhostMovement : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        OriginalLevelManager.Instance.ResetLevel();
+        if (Behaviour.Mode != GhostMode.Frightened && Behaviour.Mode != GhostMode.RunningHome)
+        {
+            OriginalLevelManager.Instance.ResetLevel();
+        }
+        else
+        {
+            Behaviour.SetMode(GhostMode.RunningHome);
+        }
     }
 }

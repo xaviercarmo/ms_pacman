@@ -13,11 +13,12 @@ public class PlayerManager : MonoBehaviour
 
     public Grid LevelGrid;
     public Tilemap WallsTilemap;
-    public Tilemap ConsumablesTilemap;
+    public Tilemap DotsTilemap;
+    public Tilemap PowerPillsTilemap;
     public Tilemap HorizontalPortalsTilemap;
 
     public Vector3 HomeWorldPos = Vector3.zero;
-    public int Score = 0;
+    public int Points = 0;
     public int DotsEaten = 0;
 
     int lives = 3;

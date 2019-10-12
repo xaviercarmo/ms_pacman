@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public enum GhostMode
@@ -6,20 +7,20 @@ public enum GhostMode
     Idle,
     Chase,
     Scatter,
-    Frightened
+    Frightened,
+    RunningHome
 }
 
 public abstract class GhostBehaviour
 {
     //Public fields/properties
     public GhostMovement MovementHandler;
+    public GhostMode Mode { get; protected set; } = GhostMode.Idle;
 
     //Protected field/properties
-    protected GhostMode mode = GhostMode.Idle;
-
+    protected float secondsBeforeRelease = 0;
     protected Vector3Int scatterGoalCellPos;
     protected int dotsBeforeRelease = 0;
-    protected float secondsBeforeRelease = 0;
 
     //Private fields/properties
     bool released = false;
@@ -27,12 +28,18 @@ public abstract class GhostBehaviour
     //Sets the ghost mode and reverses movement when previous mode was chase or scatter
     public void SetMode(GhostMode mode)
     {
-        if (this.mode == GhostMode.Chase || this.mode == GhostMode.Scatter)
+        if (Mode == GhostMode.Chase || Mode == GhostMode.Scatter)
         {
             MovementHandler.ShouldReverseMovement = true;
         }
 
-        this.mode = mode;
+        Mode = mode;
+    }
+
+    public void DelayRelease(float secondsBeforeRelease)
+    {
+        released = false;
+        this.secondsBeforeRelease = secondsBeforeRelease;
     }
 
     //Gets the next target cell based on ghost mode, returns early if release conditions not met
@@ -56,13 +63,22 @@ public abstract class GhostBehaviour
             }
         }
 
-        switch (mode)
+        if (Mode == GhostMode.RunningHome && currentCellPos == GhostManager.GhostHomeCenter)
+        {
+            Mode = GhostMode.Chase;
+        }
+
+        switch (Mode)
         {
             case GhostMode.Chase:
                 return GetNextTargetCellTowardsGoal(GetGoalCell(), previousCellPos, currentCellPos);
             case GhostMode.Scatter:
                 return GetNextTargetCellTowardsGoal(scatterGoalCellPos, previousCellPos, currentCellPos);
             case GhostMode.Frightened:
+                var candidatePositions = GetCandidateCellTargets(previousCellPos, currentCellPos).Select(tuple => tuple.Pos).ToList();
+                return candidatePositions[Random.Range(0, candidatePositions.Count)];
+            case GhostMode.RunningHome:
+                return GetNextTargetCellTowardsGoal(GhostManager.GhostHomeCenter, previousCellPos, currentCellPos);
             case GhostMode.Idle:
             default:
                 return currentCellPos;
@@ -103,6 +119,14 @@ public abstract class GhostBehaviour
     // Assumes all surrounding cells are candidates, then prunes previous cell, wall cells, and cells that are direction-blocked for ghosts
     protected List<(Direction Direction, Vector3Int Pos)> GetCandidateCellTargets(Vector3Int previousCellPos, Vector3Int currentCellPos)
     {
+        if (currentCellPos == GhostManager.GhostHomeCenter)
+        {
+            return new List<(Direction Direction, Vector3Int Pos)>()
+            {
+                (Direction.Up, currentCellPos + new Vector3Int(0, 1, 0))
+            };
+        }
+
         var result = new List<(Direction Direction, Vector3Int Pos)>()
         {
             (Direction.Left, currentCellPos + new Vector3Int(-1, 0, 0)),
@@ -113,13 +137,15 @@ public abstract class GhostBehaviour
 
         result.RemoveAll(c =>
         {
+            var upBlocked = c.Direction == Direction.Up && GhostManager.Instance.UpBlockersTilemap.HasTile(currentCellPos);
+            var downBlocked = c.Direction == Direction.Down && GhostManager.Instance.DownBlockersTilemap.HasTile(currentCellPos);
+
             return GhostManager.Instance.WallsTilemap.HasTile(c.Pos)
-            || c.Pos == previousCellPos
-            || (c.Direction == Direction.Up && GhostManager.Instance.UpBlockersTilemap.HasTile(currentCellPos))
-            || (c.Direction == Direction.Down && GhostManager.Instance.DownBlockersTilemap.HasTile(currentCellPos));
+            || c.Pos == previousCellPos 
+            || (Mode != GhostMode.RunningHome && (upBlocked || downBlocked));
         });
 
-        return result;
+        return result.Count > 0 ? result : new List<(Direction, Vector3Int Pos)>() { (Direction.None, currentCellPos) };
     }
 
     public Vector3Int DebugGoalCell() => GetGoalCell();
@@ -127,7 +153,9 @@ public abstract class GhostBehaviour
     public void ResetState()
     {
         released = false;
+        Mode = GhostManager.Instance.CurrentModeInQueue;
         MovementHandler.ResetState();
+
         AdditionalResetBehaviour();
     }
 
