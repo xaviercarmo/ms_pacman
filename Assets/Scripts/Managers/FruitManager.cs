@@ -59,13 +59,13 @@ public class FruitManager : MonoBehaviour
     IEnumerator MakeFruitExitAfterDuration(GameObject fruitGameObject, float duration)
     {
         yield return new WaitForSeconds(duration);
-        fruitGameObject.GetComponent<FruitMovement>().Mode = FruitMode.Exit;
+        if (fruitGameObject != null) { fruitGameObject.GetComponent<FruitMovement>().Mode = FruitMode.Exit; }
     }
 
     public void ConsumeFruit(GameObject fruitGameObject)
     {
         var fruitToConsume = spawnedFruits.Find(tuple => tuple.FruitGameObject == fruitGameObject);
-        PlayerManager.Instance.Score += fruitToConsume.pointsValue;
+        PlayerManager.Instance.Points += fruitToConsume.pointsValue;
         Destroy(fruitToConsume.FruitGameObject);
     }
 }

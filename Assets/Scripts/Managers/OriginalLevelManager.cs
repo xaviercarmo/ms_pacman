@@ -28,6 +28,10 @@ public class OriginalLevelManager : MonoBehaviour
 
     void Update()
     {
+        if (PlayerManager.Instance.DotsEaten == 152)
+        {
+            Time.timeScale = 0;
+        }
     }
 
     public void ResetLevel()
