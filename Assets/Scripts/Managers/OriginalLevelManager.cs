@@ -5,7 +5,7 @@ public class OriginalLevelManager : MonoBehaviour
 {
     public static OriginalLevelManager Instance { get; private set; }
 
-    public bool GameResetting { get; private set; } = false;
+    public bool GameSuspended { get; private set; } = false;
     public float GameResetTime = 5;
     public GhostManager GhostManager;
 
@@ -32,7 +32,7 @@ public class OriginalLevelManager : MonoBehaviour
 
     public void ResetLevel()
     {
-        GameResetting = true;
+        GameSuspended = true;
         Instance.Invoke("ResumeGame", GameResetTime);
 
         PlayerManager.Instance.ResetState();
@@ -42,7 +42,7 @@ public class OriginalLevelManager : MonoBehaviour
 
     void ResumeGame()
     {
-        GameResetting = false;
+        GameSuspended = false;
         PlayerManager.Instance.MovementHandler.ResumeAfterReset();
     }
 }

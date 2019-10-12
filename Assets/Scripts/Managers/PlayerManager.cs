@@ -17,6 +17,7 @@ public class PlayerManager : MonoBehaviour
     public Tilemap HorizontalPortalsTilemap;
 
     public Vector3 HomeWorldPos = Vector3.zero;
+    public int Score = 0;
     public int DotsEaten = 0;
 
     int lives = 3;

@@ -36,7 +36,7 @@ public class PlayerInputManager : MonoBehaviour
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameResetting) { return; }
+        if (OriginalLevelManager.Instance.GameSuspended) { return; }
 
         if (Input.anyKeyDown)
         {
