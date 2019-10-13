@@ -101,7 +101,6 @@ public class GhostManager : MonoBehaviour
         if (modeTime >= modeQueue.Peek().Item2)
         {
             modeTime = 0;
-            Debug.Log("Dequeud");
             CurrentModeInQueue = modeQueue.Peek().Item1;
             ChangeGhostMode(modeQueue.Dequeue().Item1);
         }
@@ -145,7 +144,29 @@ public class GhostManager : MonoBehaviour
 
     IEnumerator SetGhostModeDelayed()
     {
-        yield return new WaitForSeconds(frightenDuration);
+        float elapsedTime = 0;
+
+        var ghostFrightenedAudioSource = AudioManager.Instance.GhostFrightenedAudioSource;
+
+        ghostFrightenedAudioSource.loop = true;
+        if (!ghostFrightenedAudioSource.isPlaying)
+        {
+            ghostFrightenedAudioSource.pitch = 1;
+            ghostFrightenedAudioSource.Play();
+        }
+
+        while (elapsedTime < frightenDuration)
+        {
+            if (!OriginalLevelManager.Instance.GameSuspended)
+            {
+                ghostFrightenedAudioSource.pitch = 1 + Mathf.Pow(elapsedTime / frightenDuration / 1.5f, 2);
+                elapsedTime += Time.deltaTime;
+            }
+
+            yield return null;
+        }
+
+        ghostFrightenedAudioSource.loop = false;
         frightenedMode = false;
         ConsecutiveGhostsEaten = 0;
         ChangeGhostMode(CurrentModeInQueue);

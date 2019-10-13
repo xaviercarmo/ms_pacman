@@ -12,6 +12,8 @@ public enum GameLevel
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance; //finish singleton pattern so multiple aren't made when coming back to main menu
+
     public static GameLevel CurrentGameLevel { get; private set; } = GameLevel.MainMenu;
     public AudioSource BackgroundMusic;
 
@@ -33,6 +35,14 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.M))
         {
             BackgroundMusic.mute = !BackgroundMusic.mute;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (CurrentGameLevel == GameLevel.OriginalLevel)
+            {
+                SetLevel(GameLevel.MainMenu);
+            }
         }
     }
 

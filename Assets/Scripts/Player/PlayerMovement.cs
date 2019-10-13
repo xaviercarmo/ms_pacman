@@ -67,22 +67,23 @@ public class PlayerMovement : MonoBehaviour
             {
                 var updatedTargetCellPos = GetUpdatedTargetCellAndSprite();
 
+                var playerAudioSource = AudioManager.Instance.PlayerAudioSource;
                 if (PlayerManager.Instance.DotsTilemap.HasTile(CurrentCellPos))
                 {
                     PlayerManager.Instance.DotsTilemap.SetTile(CurrentCellPos, null);
                     PlayerManager.Instance.Points += 10;
                     PlayerManager.Instance.DotsEaten++;
 
-                    if (!PlayerManager.Instance.PlayerAudio.isPlaying)
+                    if (!playerAudioSource.isPlaying)
                     {
-                        PlayerManager.Instance.PlayerAudio.clip = PlayerManager.Instance.EatDotClip;
-                        PlayerManager.Instance.PlayerAudio.loop = true;
-                        PlayerManager.Instance.PlayerAudio.Play();
+                        playerAudioSource.clip = AudioManager.Instance.PlayerEatDotClip;
+                        playerAudioSource.loop = true;
+                        playerAudioSource.Play();
                     }
                 }
                 else
                 {
-                    PlayerManager.Instance.PlayerAudio.loop = false;
+                    playerAudioSource.loop = false;
                 }
 
                 if (updatedTargetCellPos != CurrentCellPos)
@@ -118,8 +119,10 @@ public class PlayerMovement : MonoBehaviour
     public void ResetState()
     {
         PlayerManager.Instance.Animator.SetTrigger("Died");
-
-        Invoke("ResetStateDelayed", 1.5f);
+        if (PlayerManager.Instance.Lives > 0)
+        {
+            Invoke("ResetStateDelayed", 1.5f);
+        }
     }
 
     void ResetStateDelayed()

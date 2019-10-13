@@ -20,7 +20,7 @@ public class Tweener : MonoBehaviour
         {
             activeTweens.ForEach(tween => tween.StartTime += Time.deltaTime);
             return;
-        } //need to make the tween start time reset after game resetting
+        }
 
         for (var i = activeTweens.Count - 1; i >= 0; i--)
         {

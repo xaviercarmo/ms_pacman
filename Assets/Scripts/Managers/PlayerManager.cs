@@ -14,9 +14,6 @@ public class PlayerManager : MonoBehaviour
     public Text ScoreText;
     public Image[] LifeImages;
 
-    public AudioSource PlayerAudio;
-    public AudioClip EatDotClip;
-
     public Grid LevelGrid;
     public Tilemap WallsTilemap;
     public Tilemap DotsTilemap;
@@ -61,8 +58,13 @@ public class PlayerManager : MonoBehaviour
 
     public void ResetState()
     {
-        MovementHandler.ResetState();
+        AudioManager.Instance.PlayerAudioSource.clip = AudioManager.Instance.PlayerDieClip;
+        AudioManager.Instance.PlayerAudioSource.loop = false;
+        AudioManager.Instance.PlayerAudioSource.Play();
+
         Lives--;
         LifeImages[Lives].enabled = false;
+
+        MovementHandler.ResetState();
     }
 }

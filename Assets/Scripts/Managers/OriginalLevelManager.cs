@@ -1,15 +1,18 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class OriginalLevelManager : MonoBehaviour
 {
     public static OriginalLevelManager Instance { get; private set; }
 
+    public Text StatusText;
+
     public bool GameSuspended { get; private set; } = true;
-    public float GameResetTime = 3;
-    public GhostManager GhostManager;
+    float gameResetTime = 3f;
 
     bool gameStarted = false;
+    bool canPause = false;
 
     void Awake()
     {
@@ -20,13 +23,11 @@ public class OriginalLevelManager : MonoBehaviour
         else
         {
             Instance = this;
-            GhostManager = GetComponent<GhostManager>();
         }
     }
 
     void Start()
     {
-        //Instance.Invoke("ResumeGame", GameResetTime);
     }
 
     void Update()
@@ -36,42 +37,61 @@ public class OriginalLevelManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 gameStarted = true;
+                canPause = true;
                 GameSuspended = false;
+                PlayerManager.Instance.Points = 0;
+            }
+        }
+        else
+        {
+            if (Input.GetKeyDown(KeyCode.P) && canPause)
+            {
+                if (GameSuspended)
+                {
+                    StatusText.text = string.Empty;
+                    GameSuspended = false;
+                    AudioManager.Instance.ResumeAllSources();
+                }
+                else
+                {
+                    StatusText.text = "Paused";
+                    GameSuspended = true;
+                    AudioManager.Instance.PauseAllSources();
+                }
             }
 
-            return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            GameSuspended = !GameSuspended;
-        }
-
-        if (PlayerManager.Instance.DotsEaten == 152)
-        {
-            //game over
-            GameSuspended = true;
-        }
-        else if (PlayerManager.Instance.Lives <= 0)
-        {
-            //game over
-            GameSuspended = true;
+            if (PlayerManager.Instance.DotsEaten == 152)
+            {
+                StatusText.text = "You  Won!";
+                AudioManager.Instance.StopAllSources();
+                GameSuspended = true;
+            }
+            else if (PlayerManager.Instance.Lives <= 0)
+            {
+                StatusText.text = "Game  Over...";
+                AudioManager.Instance.StopAllSources();
+                GameSuspended = true;
+            }
         }
     }
 
     public void ResetLevel()
     {
+        AudioManager.Instance.StopAllSources();
+
         GameSuspended = true;
-        Instance.Invoke("ResumeGame", GameResetTime);
+        canPause = false;
+        Instance.Invoke("ResumeGame", gameResetTime);
 
         PlayerManager.Instance.ResetState();
-        GhostManager.ResetState();
+        GhostManager.Instance.ResetState();
         PlayerInputManager.ResetState();
     }
 
     void ResumeGame()
     {
         GameSuspended = false;
+        canPause = true;
         PlayerManager.Instance.MovementHandler.ResumeAfterReset();
     }
 }
