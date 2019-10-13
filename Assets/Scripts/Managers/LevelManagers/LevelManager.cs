@@ -38,6 +38,7 @@ public abstract class LevelManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 CancelInvoke("ToggleStartText");
+                PlayerManager.Instance.ScoreText.enabled = true;
                 gameStarted = true;
                 canPause = true;
                 GameSuspended = false;
@@ -64,8 +65,6 @@ public abstract class LevelManager : MonoBehaviour
 
             EndConditions();
         }
-
-        AdditionalUpdate();
     }
 
     public void ResetLevel()
@@ -94,5 +93,4 @@ public abstract class LevelManager : MonoBehaviour
     }
 
     protected abstract void EndConditions();
-    protected abstract void AdditionalUpdate();
 }

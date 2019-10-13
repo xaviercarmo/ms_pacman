@@ -18,8 +18,4 @@ public class LevelManagerOriginal : LevelManager
             GameSuspended = true;
         }
     }
-
-    protected override void AdditionalUpdate()
-    {
-    }
 }

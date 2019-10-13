@@ -8,6 +8,8 @@ public class GhostManager : MonoBehaviour
 {
     public static GhostManager Instance { get; private set; }
 
+    public bool NewLevel = false;
+
     public GameObject RedGhostPrefab;
     public GameObject BlueGhostPrefab;
     public GameObject PinkGhostPrefab;
@@ -54,6 +56,7 @@ public class GhostManager : MonoBehaviour
             Instance = this;
 
             ghostBehaviours = new List<GhostBehaviour>();
+
             modeQueue = new Queue<(GhostMode, float)>
             (
                 new (GhostMode, float)[]
@@ -91,25 +94,34 @@ public class GhostManager : MonoBehaviour
 
         var ghostSlowersRenderer = GhostSlowersTilemap.GetComponent<TilemapRenderer>();
         ghostSlowersRenderer.enabled = false;
+
+        if (NewLevel)
+        {
+            CurrentModeInQueue = GhostMode.Chase;
+            ChangeGhostMode(GhostMode.Chase);
+        }
     }
 
     void Update()
     {
         if (LevelManager.Instance.GameSuspended || frightenedMode) { return; }
 
-        modeTime += Time.deltaTime;
-        if (modeTime >= modeQueue.Peek().Item2)
+        if (!NewLevel)
         {
-            modeTime = 0;
-            CurrentModeInQueue = modeQueue.Peek().Item1;
-            ChangeGhostMode(modeQueue.Dequeue().Item1);
+            modeTime += Time.deltaTime;
+            if (modeTime >= modeQueue.Peek().Item2)
+            {
+                modeTime = 0;
+                CurrentModeInQueue = modeQueue.Peek().Item1;
+                ChangeGhostMode(modeQueue.Dequeue().Item1);
+            }
         }
     }
 
     void SpawnGhost(GameObject prefab, Vector3 worldPos, GhostBehaviour behaviour)
     {
-        var ghostGameObject = LevelManager.Instance is LevelManagerNew levelManagerNew
-            ? Instantiate(prefab, worldPos, Quaternion.identity, levelManagerNew.MobileLevel.transform)
+        var ghostGameObject = GridManager.Instance != null
+            ? Instantiate(prefab, worldPos, Quaternion.identity, GridManager.Instance.GridGroup.transform)
             : Instantiate(prefab, worldPos, Quaternion.identity);
 
         ghostGameObject.name = behaviour.GetType().Name;

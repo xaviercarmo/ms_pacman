@@ -1730,7 +1730,7 @@ GameObject:
   m_Component:
   - component: {fileID: 891941267}
   m_Layer: 0
-  m_Name: Mobile Level
+  m_Name: Grid Group
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2571,6 +2571,7 @@ GameObject:
   - component: {fileID: 1590670902}
   - component: {fileID: 1590670903}
   - component: {fileID: 1590670904}
+  - component: {fileID: 1590670906}
   - component: {fileID: 1590670905}
   m_Layer: 0
   m_Name: Managers
@@ -2606,6 +2607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ab051bce0d0266488a1b1d2409e31fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  NewLevel: 1
   RedGhostPrefab: {fileID: 6048329353945350022, guid: b55eab880963fcf44bca4729297c5d88,
     type: 3}
   BlueGhostPrefab: {fileID: 7677114203109138514, guid: 5539ec07f3ff7674984b3041b785942f,
@@ -2635,8 +2637,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StatusText: {fileID: 862003159}
-  MobileLevel: {fileID: 891941266}
-  translationAmount: {x: 0, y: 0, z: 0}
 --- !u!114 &1590670905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2653,6 +2653,29 @@ MonoBehaviour:
   WallsTilemap: {fileID: 1602406049}
   CherriesPrefab: {fileID: 1847339400126108688, guid: 40df2168f1d4e6a44abe919fba644e7f,
     type: 3}
+--- !u!114 &1590670906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1590670901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73d56e22332173d4eaedfd42dc52c88c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LevelCamera: {fileID: 380535700}
+  GridGroup: {fileID: 891941266}
+  LevelGrid: {fileID: 722554182}
+  WallsTilemap: {fileID: 1602406049}
+  GhostUpBlockersTilemap: {fileID: 1706057047}
+  GhostUpBlocker: {fileID: 11400000, guid: 1074cd8f840baaa45802869978a96271, type: 2}
+  GhostDownBlockersTilemap: {fileID: 745226707}
+  DotsTilemap: {fileID: 1954793856}
+  HorizontalPortalsTilemap: {fileID: 928310325}
+  DownBlockersTilemap: {fileID: 745226707}
+  GhostSlowersTilemap: {fileID: 722971619}
 --- !u!1 &1602406046
 GameObject:
   m_ObjectHideFlags: 0
