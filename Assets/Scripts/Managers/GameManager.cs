@@ -12,19 +12,26 @@ public enum GameLevel
 
 public class GameManager : MonoBehaviour
 {
-    public static GameLevel CurrentGameLevel { get; private set; }
-    public static Grid LevelGrid { get; private set; }
+    public static GameManager Instance;
+
+    public static GameLevel CurrentGameLevel { get; private set; } = GameLevel.MainMenu;
+    public AudioSource BackgroundMusic;
+
+    float maxBackgroundMusicVolume = 0.3f;
 
     void Awake()
     {
-        DontDestroyOnLoad(gameObject);
-
-        //later, load the main menu rather than this level
-        CurrentGameLevel = GameLevel.OriginalLevel;
-        SceneManager.sceneLoaded += (Scene scene, LoadSceneMode mode) =>
+        if (Instance != null && Instance != this)
         {
-        };
-        SceneManager.LoadScene((int)CurrentGameLevel);
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            StartCoroutine(FadeInBackgroundMusic());
+        }
     }
 
     void Start()
@@ -33,6 +40,15 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            BackgroundMusic.mute = !BackgroundMusic.mute;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape) && CurrentGameLevel != GameLevel.MainMenu)
+        {
+            SetLevel(GameLevel.MainMenu);
+        }
     }
 
     void StartGame()
@@ -43,9 +59,21 @@ public class GameManager : MonoBehaviour
     {
         if (newGameLevel != CurrentGameLevel)
         {
-            SceneManager.UnloadSceneAsync((int)CurrentGameLevel);
             SceneManager.LoadSceneAsync((int)newGameLevel);
             CurrentGameLevel = newGameLevel;
         }
+    }
+
+    IEnumerator FadeInBackgroundMusic()
+    {
+        BackgroundMusic.volume = 0;
+        BackgroundMusic.Play();
+        while (BackgroundMusic.volume < maxBackgroundMusicVolume)
+        {
+            BackgroundMusic.volume += 0.1f * Time.deltaTime;
+            yield return null;
+        }
+
+        BackgroundMusic.volume = maxBackgroundMusicVolume;
     }
 }

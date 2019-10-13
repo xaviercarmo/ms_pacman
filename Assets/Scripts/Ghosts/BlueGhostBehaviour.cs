@@ -12,7 +12,7 @@ public class BlueGhostBehaviour : GhostBehaviour
 
         scatterGoalCellPos = new Vector3Int(GhostManager.Instance.WallsTilemap.cellBounds.xMax, GhostManager.Instance.WallsTilemap.cellBounds.yMin, 0);
         dotsBeforeRelease = 30;
-        secondsBeforeRelease = 15;
+        SecondsBeforeRelease = 15;
     }
 
     //Gets a vector from red ghost to cell 2 ahead of ms pacman, doubles that vector, and returns the cell the vector ends on
@@ -25,6 +25,6 @@ public class BlueGhostBehaviour : GhostBehaviour
 
     protected override void AdditionalResetBehaviour()
     {
-        secondsBeforeRelease = 6;
+        SecondsBeforeRelease = 6;
     }
 }

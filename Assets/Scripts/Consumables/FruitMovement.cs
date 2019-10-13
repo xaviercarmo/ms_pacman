@@ -14,7 +14,7 @@ public class FruitMovement : MonoBehaviour
     float timeToTravelGridSize = 0.32f;
 
     Tweener tweener;
-    Tween tween;
+    CellTween tween;
 
     void Awake()
     {
@@ -72,8 +72,9 @@ public class FruitMovement : MonoBehaviour
                     }
                     else
                     {
-                        tween.StartPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(currentCellPos);
-                        tween.EndPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(targetCellPos);
+                        tween.StartCellPos = currentCellPos;
+                        tween.EndCellPos = targetCellPos;
+                        tween.UpdateWorldPositions();
                         tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
                     }
                 }
@@ -83,9 +84,7 @@ public class FruitMovement : MonoBehaviour
 
     void TweenToTargetCell()
     {
-        var currentCellCenter = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(currentCellPos);
-        var targetCellCenter = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(targetCellPos);
-        tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
+        tween = tweener.AddTween(transform, currentCellPos, targetCellPos, timeToTravelGridSize, true);
     }
 
     void UpdateTargetCell()

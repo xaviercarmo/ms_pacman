@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public enum FruitMode
 {
@@ -15,11 +16,12 @@ public class FruitManager : MonoBehaviour
 {
     public static FruitManager Instance { get; private set; }
 
+    public Image CherriesUIImage;
     public Tilemap WallsTilemap;
     public GameObject CherriesPrefab;
 
     bool spawnedCherries = false;
-    List<(GameObject FruitGameObject, int pointsValue, float SpawnTime, float Duration)> spawnedFruits;
+    List<(GameObject FruitGameObject, Image UIImage, int pointsValue, float SpawnTime, float Duration)> spawnedFruits;
 
     void Awake()
     {
@@ -30,7 +32,7 @@ public class FruitManager : MonoBehaviour
         else
         {
             Instance = this;
-            spawnedFruits = new List<(GameObject, int, float, float)>();
+            spawnedFruits = new List<(GameObject, Image, int, float, float)>();
         }
     }
 
@@ -48,7 +50,7 @@ public class FruitManager : MonoBehaviour
                 var cherryPointsValue = 200;
                 var fruitGameObject = Instantiate(CherriesPrefab, new Vector3(11, 6), Quaternion.identity);
 
-                spawnedFruits.Add((fruitGameObject, cherryPointsValue, Time.time, cherryDuration));
+                spawnedFruits.Add((fruitGameObject, CherriesUIImage, cherryPointsValue, Time.time, cherryDuration));
                 StartCoroutine(MakeFruitExitAfterDuration(fruitGameObject, cherryDuration));
 
                 spawnedCherries = true;
@@ -58,7 +60,17 @@ public class FruitManager : MonoBehaviour
 
     IEnumerator MakeFruitExitAfterDuration(GameObject fruitGameObject, float duration)
     {
-        yield return new WaitForSeconds(duration);
+        float elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            if (!LevelManager.Instance.GameSuspended)
+            {
+                elapsedTime += Time.deltaTime;
+            }
+
+            yield return null;
+        }
+
         if (fruitGameObject != null) { fruitGameObject.GetComponent<FruitMovement>().Mode = FruitMode.Exit; }
     }
 
@@ -66,6 +78,8 @@ public class FruitManager : MonoBehaviour
     {
         var fruitToConsume = spawnedFruits.Find(tuple => tuple.FruitGameObject == fruitGameObject);
         PlayerManager.Instance.Points += fruitToConsume.pointsValue;
+        fruitToConsume.UIImage.enabled = true;
+        AudioManager.Instance.FruitAudioSource.Play();
         Destroy(fruitToConsume.FruitGameObject);
     }
 }

@@ -20,7 +20,7 @@ public class GhostMovement : MonoBehaviour
     float timeToTravelGridSize = 0.16f;
 
     Tweener tweener;
-    Tween tween;
+    CellTween tween;
     new SpriteRenderer renderer;
     Animator animator;
 
@@ -39,20 +39,26 @@ public class GhostMovement : MonoBehaviour
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameSuspended) { UpdateAnimation(); return; }
+        if (LevelManager.Instance.GameSuspended) { UpdateAnimation(); return; }
 
         //Change the movement speed based on the current mode, faster when running home after being caught, slower when running away
         switch (Behaviour.Mode)
         {
             case GhostMode.Frightened:
-                timeToTravelGridSize = baseTimeToTravelGridSize * 1.5f;
+            case GhostMode.Exiting:
+                timeToTravelGridSize = baseTimeToTravelGridSize * 2f;
                 break;
             case GhostMode.RunningHome:
-                timeToTravelGridSize = baseTimeToTravelGridSize * 0.5f;
+                timeToTravelGridSize = baseTimeToTravelGridSize * 0.75f;
                 break;
             default:
                 timeToTravelGridSize = baseTimeToTravelGridSize;
                 break;
+        }
+
+        if (LevelManager.Instance.ScrollingMode)
+        {
+            timeToTravelGridSize *= 1.5f;
         }
 
         if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
@@ -91,8 +97,9 @@ public class GhostMovement : MonoBehaviour
                     }
                     else
                     {
-                        tween.StartPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-                        tween.EndPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
+                        tween.StartCellPos = CurrentCellPos;
+                        tween.EndCellPos = TargetCellPos;
+                        tween.UpdateWorldPositions();
                         tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
                         tween.Duration = timeToTravelGridSize * durationMultiplier;
                     }
@@ -116,7 +123,7 @@ public class GhostMovement : MonoBehaviour
     {
         var directionVec = TargetCellPos - CurrentCellPos;
 
-        if (Behaviour.Mode == GhostMode.Frightened)
+        if (Behaviour.Mode == GhostMode.Frightened || Behaviour.Mode == GhostMode.Exiting)
         {
             animator.SetTrigger("RunAway");
             animator.speed = 0.5f;
@@ -154,9 +161,7 @@ public class GhostMovement : MonoBehaviour
 
     void TweenToTargetCell(float durationMultiplier = 1)
     {
-        var currentCellCenter = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-        var targetCellCenter = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
-        tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize * durationMultiplier, true);
+        tween = tweener.AddTween(transform, CurrentCellPos, TargetCellPos, timeToTravelGridSize * durationMultiplier, true);
     }
 
     public void ResetState()
@@ -173,13 +178,32 @@ public class GhostMovement : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (Behaviour.Mode != GhostMode.Frightened && Behaviour.Mode != GhostMode.RunningHome)
+        if (collision.gameObject.tag == "Player")
         {
-            OriginalLevelManager.Instance.ResetLevel();
-        }
-        else
-        {
-            Behaviour.SetMode(GhostMode.RunningHome);
+            switch (Behaviour.Mode)
+            {
+                case GhostMode.Frightened:
+                    GhostManager.Instance.ConsecutiveGhostsEaten++;
+                    AudioManager.Instance.GhostEatenAudioSource.Play();
+                    PlayerManager.Instance.Points += 200 * GhostManager.Instance.ConsecutiveGhostsEaten;
+                    Behaviour.SetMode(GhostMode.RunningHome);
+                    break;
+                case GhostMode.Exiting:
+                    AudioManager.Instance.GhostEatenAudioSource.Play();
+                    PlayerManager.Instance.Points += 200;
+                    gameObject.SetActive(false);
+                    break;
+                default:
+                    if (LevelManager.Instance.ScrollingMode)
+                    {
+                        PlayerManager.Instance.Health -= 15;
+                    }
+                    else
+                    {
+                        LevelManager.Instance.ResetLevel();
+                    }
+                    break;
+            }
         }
     }
 }

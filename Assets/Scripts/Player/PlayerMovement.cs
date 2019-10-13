@@ -20,7 +20,7 @@ public class PlayerMovement : MonoBehaviour
     Vector3Int movement;
     float timeToTravelGridSize = 0.15f;
 
-    Tween tween;
+    CellTween tween;
 
     KeyCode lastMovementKeyApplied;
 
@@ -41,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameSuspended) { return; }
+        if (LevelManager.Instance.GameSuspended) { return; }
 
         if (!PlayerManager.Instance.Tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
@@ -67,11 +67,23 @@ public class PlayerMovement : MonoBehaviour
             {
                 var updatedTargetCellPos = GetUpdatedTargetCellAndSprite();
 
+                var playerAudioSource = AudioManager.Instance.PlayerAudioSource;
                 if (PlayerManager.Instance.DotsTilemap.HasTile(CurrentCellPos))
                 {
                     PlayerManager.Instance.DotsTilemap.SetTile(CurrentCellPos, null);
                     PlayerManager.Instance.Points += 10;
                     PlayerManager.Instance.DotsEaten++;
+
+                    if (!playerAudioSource.isPlaying)
+                    {
+                        playerAudioSource.clip = AudioManager.Instance.PlayerEatDotClip;
+                        playerAudioSource.loop = true;
+                        playerAudioSource.Play();
+                    }
+                }
+                else
+                {
+                    playerAudioSource.loop = false;
                 }
 
                 if (updatedTargetCellPos != CurrentCellPos)
@@ -85,8 +97,9 @@ public class PlayerMovement : MonoBehaviour
                     }
                     else
                     {
-                        tween.StartPos = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-                        tween.EndPos = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
+                        tween.StartCellPos = CurrentCellPos;
+                        tween.EndCellPos = TargetCellPos;
+                        tween.UpdateWorldPositions();
                         tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
                     }
                 }
@@ -106,9 +119,10 @@ public class PlayerMovement : MonoBehaviour
 
     public void ResetState()
     {
-        PlayerManager.Instance.Animator.SetTrigger("Died");
-
-        Invoke("ResetStateDelayed", 1.5f);
+        if (PlayerManager.Instance.Lives > 0)
+        {
+            Invoke("ResetStateDelayed", 1.5f);
+        }
     }
 
     void ResetStateDelayed()
@@ -136,9 +150,7 @@ public class PlayerMovement : MonoBehaviour
 
     void TweenToTargetCell()
     {
-        var currentCellCenter = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-        var targetCellCenter = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
-        tween = PlayerManager.Instance.Tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
+        tween = PlayerManager.Instance.Tweener.AddTween(transform, CurrentCellPos, TargetCellPos, timeToTravelGridSize, true);
     }
 
     void ApplyFlipAndRotation()
@@ -217,7 +229,8 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //if the target cell is a wall
-        if (PlayerManager.Instance.WallsTilemap.HasTile(result))
+        var isTargetDownwards = result.y < CurrentCellPos.y;
+        if (PlayerManager.Instance.WallsTilemap.HasTile(result) || (isTargetDownwards && PlayerManager.Instance.DownBlockersTilemap.HasTile(result)))
         {
             flipY = PlayerManager.Instance.Renderer.flipY;
             flipX = PlayerManager.Instance.Renderer.flipX;
@@ -225,9 +238,10 @@ public class PlayerMovement : MonoBehaviour
 
             //then try to continue the current motion
             result = CurrentCellPos + (CurrentCellPos - PreviousCellPos);
+            isTargetDownwards = result.y < CurrentCellPos.y;
 
-            //if there is a wall straight ahead
-            if (PlayerManager.Instance.WallsTilemap.HasTile(result))
+            //if there is a wall straight ahead or downwards motion is blocked
+            if (PlayerManager.Instance.WallsTilemap.HasTile(result) || (isTargetDownwards && PlayerManager.Instance.DownBlockersTilemap.HasTile(result)))
             {
                 //then stand still
                 result = CurrentCellPos;

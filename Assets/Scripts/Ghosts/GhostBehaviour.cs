@@ -5,10 +5,11 @@ using UnityEngine;
 public enum GhostMode
 {
     Idle,
-    Chase,
-    Scatter,
+    Chasing,
+    Scattering,
     Frightened,
-    RunningHome
+    RunningHome,
+    Exiting
 }
 
 public abstract class GhostBehaviour
@@ -16,9 +17,9 @@ public abstract class GhostBehaviour
     //Public fields/properties
     public GhostMovement MovementHandler;
     public GhostMode Mode { get; protected set; } = GhostMode.Idle;
+    public float SecondsBeforeRelease = 0;
 
     //Protected field/properties
-    protected float secondsBeforeRelease = 0;
     protected Vector3Int scatterGoalCellPos;
     protected int dotsBeforeRelease = 0;
 
@@ -28,7 +29,7 @@ public abstract class GhostBehaviour
     //Sets the ghost mode and reverses movement when previous mode was chase or scatter
     public void SetMode(GhostMode mode)
     {
-        if (Mode == GhostMode.Chase || Mode == GhostMode.Scatter)
+        if (Mode == GhostMode.Chasing || Mode == GhostMode.Scattering)
         {
             MovementHandler.ShouldReverseMovement = true;
         }
@@ -39,21 +40,21 @@ public abstract class GhostBehaviour
     public void DelayRelease(float secondsBeforeRelease)
     {
         released = false;
-        this.secondsBeforeRelease = secondsBeforeRelease;
+        SecondsBeforeRelease = secondsBeforeRelease;
     }
 
     //Gets the next target cell based on ghost mode, returns early if release conditions not met
     public Vector3Int GetNextTargetCellPos(Vector3Int previousCellPos, Vector3Int currentCellPos)
     {
-        if (PlayerManager.Instance.DotsEaten < dotsBeforeRelease && (secondsBeforeRelease -= Time.deltaTime) >= 0)
+        if (PlayerManager.Instance.DotsEaten < dotsBeforeRelease && (SecondsBeforeRelease -= Time.deltaTime) >= 0)
         {
             return currentCellPos;
         }
         else if (!released)
         {
-            secondsBeforeRelease = 0;
+            SecondsBeforeRelease = 0;
 
-            if (MovementHandler.CurrentCellPos != GhostManager.RedGhostStartCellPos)
+            if (MovementHandler.CurrentCellPos != GhostManager.RedGhostStartCellPos && !LevelManager.Instance.ScrollingMode)
             {
                 return GetNextTargetCellTowardsGoal(GhostManager.RedGhostStartCellPos, currentCellPos, currentCellPos);
             }
@@ -65,16 +66,17 @@ public abstract class GhostBehaviour
 
         if (Mode == GhostMode.RunningHome && currentCellPos == GhostManager.GhostHomeCenter)
         {
-            Mode = GhostMode.Chase;
+            Mode = GhostMode.Chasing;
         }
 
         switch (Mode)
         {
-            case GhostMode.Chase:
+            case GhostMode.Chasing:
                 return GetNextTargetCellTowardsGoal(GetGoalCell(), previousCellPos, currentCellPos);
-            case GhostMode.Scatter:
+            case GhostMode.Scattering:
                 return GetNextTargetCellTowardsGoal(scatterGoalCellPos, previousCellPos, currentCellPos);
             case GhostMode.Frightened:
+            case GhostMode.Exiting:
                 var candidatePositions = GetCandidateCellTargets(previousCellPos, currentCellPos).Select(tuple => tuple.Pos).ToList();
                 return candidatePositions[Random.Range(0, candidatePositions.Count)];
             case GhostMode.RunningHome:
@@ -141,14 +143,12 @@ public abstract class GhostBehaviour
             var downBlocked = c.Direction == Direction.Down && GhostManager.Instance.DownBlockersTilemap.HasTile(currentCellPos);
 
             return GhostManager.Instance.WallsTilemap.HasTile(c.Pos)
-            || c.Pos == previousCellPos 
+            || c.Pos == previousCellPos
             || (Mode != GhostMode.RunningHome && (upBlocked || downBlocked));
         });
 
         return result.Count > 0 ? result : new List<(Direction, Vector3Int Pos)>() { (Direction.None, currentCellPos) };
     }
-
-    public Vector3Int DebugGoalCell() => GetGoalCell();
 
     public void ResetState()
     {

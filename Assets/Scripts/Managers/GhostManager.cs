@@ -8,6 +8,8 @@ public class GhostManager : MonoBehaviour
 {
     public static GhostManager Instance { get; private set; }
 
+    public bool NewLevel = false;
+
     public GameObject RedGhostPrefab;
     public GameObject BlueGhostPrefab;
     public GameObject PinkGhostPrefab;
@@ -22,6 +24,8 @@ public class GhostManager : MonoBehaviour
     public Tilemap HorizontalPortalsTilemap;
     public Tilemap GhostSlowersTilemap;
 
+    public int ConsecutiveGhostsEaten = 0;
+
     public static Vector3 RedGhostStartWorldPos = new Vector3(0, 4);
     public static Vector3Int RedGhostStartCellPos;
     public static Vector3 BlueGhostStartWorldPos = new Vector3(-2, 2);
@@ -34,7 +38,7 @@ public class GhostManager : MonoBehaviour
 
     List<GhostBehaviour> ghostBehaviours;
 
-    float frightenDuration = 8;
+    float frightenDuration = 6;
     bool frightenedMode = false;
     Coroutine setGhostModeCoroutine = null;
 
@@ -52,18 +56,19 @@ public class GhostManager : MonoBehaviour
             Instance = this;
 
             ghostBehaviours = new List<GhostBehaviour>();
+
             modeQueue = new Queue<(GhostMode, float)>
             (
                 new (GhostMode, float)[]
                 {
-                    (GhostMode.Scatter, 0f),
-                    (GhostMode.Chase, 7f),
-                    (GhostMode.Scatter, 20f),
-                    (GhostMode.Chase, 5f),
-                    (GhostMode.Scatter, 20f),
-                    (GhostMode.Chase, 5f),
-                    (GhostMode.Scatter, float.PositiveInfinity),
-                    (GhostMode.Chase, -1)
+                    (GhostMode.Scattering, 0f),
+                    (GhostMode.Chasing, 7f),
+                    (GhostMode.Scattering, 20f),
+                    (GhostMode.Chasing, 5f),
+                    (GhostMode.Scattering, 20f),
+                    (GhostMode.Chasing, 5f),
+                    (GhostMode.Scattering, float.PositiveInfinity),
+                    (GhostMode.Chasing, -1)
                 }
             );
 
@@ -89,26 +94,39 @@ public class GhostManager : MonoBehaviour
 
         var ghostSlowersRenderer = GhostSlowersTilemap.GetComponent<TilemapRenderer>();
         ghostSlowersRenderer.enabled = false;
+
+        if (NewLevel)
+        {
+            CurrentModeInQueue = GhostMode.Chasing;
+            ChangeGhostMode(GhostMode.Chasing);
+        }
     }
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameSuspended || frightenedMode) { return; }
+        if (LevelManager.Instance.GameSuspended || frightenedMode) { return; }
 
-        modeTime += Time.deltaTime;
-        if (modeTime >= modeQueue.Peek().Item2)
+        if (!NewLevel)
         {
-            modeTime = 0;
-            Debug.Log("Dequeud");
-            CurrentModeInQueue = modeQueue.Peek().Item1;
-            ChangeGhostMode(modeQueue.Dequeue().Item1);
+            modeTime += Time.deltaTime;
+            if (modeTime >= modeQueue.Peek().Item2)
+            {
+                modeTime = 0;
+                CurrentModeInQueue = modeQueue.Peek().Item1;
+                ChangeGhostMode(modeQueue.Dequeue().Item1);
+            }
         }
     }
 
-    void SpawnGhost(GameObject prefab, Vector3 worldPos, GhostBehaviour behaviour)
+    public void SpawnGhost(GameObject prefab, Vector3 worldPos, GhostBehaviour behaviour)
     {
-        var ghostGameObject = Instantiate(prefab, worldPos, Quaternion.identity);
+        var ghostGameObject = GridManager.Instance != null
+            ? Instantiate(prefab, worldPos, Quaternion.identity, GridManager.Instance.GridGroup.transform)
+            : Instantiate(prefab, worldPos, Quaternion.identity);
+
+        ghostGameObject.GetComponent<SpriteRenderer>().sortingLayerName = "Default";
         ghostGameObject.name = behaviour.GetType().Name;
+        ghostGameObject.tag = "Ghost";
 
         var ghostMovementHandler = ghostGameObject.GetComponent<GhostMovement>();
         ghostMovementHandler.Behaviour = behaviour;
@@ -123,6 +141,11 @@ public class GhostManager : MonoBehaviour
     {
         if (mode == GhostMode.Frightened)
         {
+            if (!frightenedMode)
+            {
+                ConsecutiveGhostsEaten = 0;
+            }
+
             frightenedMode = true;
 
             if (setGhostModeCoroutine != null)
@@ -136,16 +159,57 @@ public class GhostManager : MonoBehaviour
         ghostBehaviours.ForEach(behaviour => behaviour.SetMode(mode));
     }
 
+    public void FrightenIndefinitely()
+    {
+        ConsecutiveGhostsEaten = 0;
+        frightenedMode = true;
+
+        if (setGhostModeCoroutine != null)
+        {
+            StopCoroutine(setGhostModeCoroutine);
+        }
+
+        ghostBehaviours.ForEach(behaviour =>
+        {
+            behaviour.SetMode(GhostMode.Exiting);
+            behaviour.SecondsBeforeRelease = 0;
+        });
+    }
+
     IEnumerator SetGhostModeDelayed()
     {
-        yield return new WaitForSeconds(frightenDuration);
+        float elapsedTime = 0;
+
+        var ghostFrightenedAudioSource = AudioManager.Instance.GhostFrightenedAudioSource;
+
+        ghostFrightenedAudioSource.loop = true;
+        if (!ghostFrightenedAudioSource.isPlaying)
+        {
+            ghostFrightenedAudioSource.pitch = 1;
+            ghostFrightenedAudioSource.Play();
+        }
+
+        while (elapsedTime < frightenDuration)
+        {
+            if (!LevelManager.Instance.GameSuspended)
+            {
+                ghostFrightenedAudioSource.pitch = 1 + Mathf.Pow(elapsedTime / frightenDuration / 1.5f, 2);
+                elapsedTime += Time.deltaTime;
+            }
+
+            yield return null;
+        }
+
+        ghostFrightenedAudioSource.loop = false;
         frightenedMode = false;
+        ConsecutiveGhostsEaten = 0;
         ChangeGhostMode(CurrentModeInQueue);
     }
 
     public void ResetState()
     {
         frightenedMode = false;
+        ConsecutiveGhostsEaten = 0;
 
         if (setGhostModeCoroutine != null)
         {

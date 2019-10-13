@@ -7,20 +7,32 @@ public class Tweener : MonoBehaviour
     public bool SuspendWhenGameSuspended = true;
 
     List<Tween> activeTweens;
+    List<CellTween> activeCellTweens;
 
     private void Awake()
     {
         activeTweens = new List<Tween>();
+        activeCellTweens = new List<CellTween>();
     }
 
     //Late update used here to allow movement handlers to explicitly handle tween-completion which allows for smoother movement
     void LateUpdate()
     {
-        if (SuspendWhenGameSuspended && OriginalLevelManager.Instance.GameSuspended) { return; } //need to make the tween start time reset after game resetting
+        if (SuspendWhenGameSuspended && LevelManager.Instance.GameSuspended)
+        {
+            activeTweens.ForEach(tween => tween.StartTime += Time.deltaTime);
+            return;
+        }
 
         for (var i = activeTweens.Count - 1; i >= 0; i--)
         {
             var tween = activeTweens[i];
+
+            if (tween is CellTween cellTween)
+            {
+                cellTween.UpdateWorldPositions();
+            }
+
             float timeFraction = (Time.time - tween.StartTime) / tween.Duration;
 
             if (timeFraction < 1)
@@ -35,7 +47,7 @@ public class Tweener : MonoBehaviour
         }
     }
 
-    public void AddTween(Tween tween, bool replaceIfTransformExists = false)
+    void AddTween(Tween tween, bool replaceIfTransformExists = false)
     {
         if (!TweenExists(tween.Target, out var existingTween))
         {
@@ -51,6 +63,13 @@ public class Tweener : MonoBehaviour
     public Tween AddTween(Transform targetObject, Vector3 startPos, Vector3 endPos, float duration, bool replaceIfTransformExists = false)
     {
         var tween = new Tween(targetObject, startPos, endPos, Time.time, duration);
+        AddTween(tween, replaceIfTransformExists);
+        return tween;
+    }
+
+    public CellTween AddTween(Transform targetObject, Vector3Int startCellPos, Vector3Int endCellPos, float duration, bool replaceIfTransformExists = false)
+    {
+        var tween = new CellTween(targetObject, startCellPos, endCellPos, Time.time, duration);
         AddTween(tween, replaceIfTransformExists);
         return tween;
     }
