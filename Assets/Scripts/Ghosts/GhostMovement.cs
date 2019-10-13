@@ -39,7 +39,7 @@ public class GhostMovement : MonoBehaviour
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameSuspended) { UpdateAnimation(); return; }
+        if (LevelManager.Instance.GameSuspended) { UpdateAnimation(); return; }
 
         //Change the movement speed based on the current mode, faster when running home after being caught, slower when running away
         switch (Behaviour.Mode)
@@ -175,7 +175,7 @@ public class GhostMovement : MonoBehaviour
     {
         if (Behaviour.Mode != GhostMode.Frightened && Behaviour.Mode != GhostMode.RunningHome)
         {
-            OriginalLevelManager.Instance.ResetLevel();
+            LevelManager.Instance.ResetLevel();
         }
         else if (Behaviour.Mode == GhostMode.Frightened)
         {

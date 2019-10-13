@@ -41,7 +41,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameSuspended) { return; }
+        if (LevelManager.Instance.GameSuspended) { return; }
 
         if (!PlayerManager.Instance.Tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {

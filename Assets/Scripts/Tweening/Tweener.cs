@@ -16,7 +16,7 @@ public class Tweener : MonoBehaviour
     //Late update used here to allow movement handlers to explicitly handle tween-completion which allows for smoother movement
     void LateUpdate()
     {
-        if (SuspendWhenGameSuspended && OriginalLevelManager.Instance.GameSuspended)
+        if (SuspendWhenGameSuspended && LevelManager.Instance.GameSuspended)
         {
             activeTweens.ForEach(tween => tween.StartTime += Time.deltaTime);
             return;

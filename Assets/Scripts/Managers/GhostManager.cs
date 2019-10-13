@@ -95,7 +95,7 @@ public class GhostManager : MonoBehaviour
 
     void Update()
     {
-        if (OriginalLevelManager.Instance.GameSuspended || frightenedMode) { return; }
+        if (LevelManager.Instance.GameSuspended || frightenedMode) { return; }
 
         modeTime += Time.deltaTime;
         if (modeTime >= modeQueue.Peek().Item2)
@@ -157,7 +157,7 @@ public class GhostManager : MonoBehaviour
 
         while (elapsedTime < frightenDuration)
         {
-            if (!OriginalLevelManager.Instance.GameSuspended)
+            if (!LevelManager.Instance.GameSuspended)
             {
                 ghostFrightenedAudioSource.pitch = 1 + Mathf.Pow(elapsedTime / frightenDuration / 1.5f, 2);
                 elapsedTime += Time.deltaTime;

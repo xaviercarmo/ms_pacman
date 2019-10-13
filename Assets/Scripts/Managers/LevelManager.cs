@@ -2,9 +2,9 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class OriginalLevelManager : MonoBehaviour
+public class LevelManager : MonoBehaviour
 {
-    public static OriginalLevelManager Instance { get; private set; }
+    public static LevelManager Instance { get; private set; }
 
     public Text StatusText;
 
@@ -28,6 +28,7 @@ public class OriginalLevelManager : MonoBehaviour
 
     void Start()
     {
+        InvokeRepeating("ToggleStartText", 0.4f, 0.4f);
     }
 
     void Update()
@@ -36,6 +37,7 @@ public class OriginalLevelManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
+                CancelInvoke("ToggleStartText");
                 gameStarted = true;
                 canPause = true;
                 GameSuspended = false;
@@ -93,5 +95,10 @@ public class OriginalLevelManager : MonoBehaviour
         GameSuspended = false;
         canPause = true;
         PlayerManager.Instance.MovementHandler.ResumeAfterReset();
+    }
+
+    void ToggleStartText()
+    {
+        PlayerManager.Instance.ScoreText.enabled = !PlayerManager.Instance.ScoreText.enabled;
     }
 }

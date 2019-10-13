@@ -63,7 +63,7 @@ public class FruitManager : MonoBehaviour
         float elapsedTime = 0;
         while (elapsedTime < duration)
         {
-            if (!OriginalLevelManager.Instance.GameSuspended)
+            if (!LevelManager.Instance.GameSuspended)
             {
                 elapsedTime += Time.deltaTime;
             }
