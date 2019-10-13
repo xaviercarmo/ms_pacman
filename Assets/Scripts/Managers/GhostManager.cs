@@ -108,7 +108,10 @@ public class GhostManager : MonoBehaviour
 
     void SpawnGhost(GameObject prefab, Vector3 worldPos, GhostBehaviour behaviour)
     {
-        var ghostGameObject = Instantiate(prefab, worldPos, Quaternion.identity);
+        var ghostGameObject = LevelManager.Instance is LevelManagerNew levelManagerNew
+            ? Instantiate(prefab, worldPos, Quaternion.identity, levelManagerNew.MobileLevel.transform)
+            : Instantiate(prefab, worldPos, Quaternion.identity);
+
         ghostGameObject.name = behaviour.GetType().Name;
 
         var ghostMovementHandler = ghostGameObject.GetComponent<GhostMovement>();

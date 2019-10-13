@@ -20,7 +20,7 @@ public class PlayerMovement : MonoBehaviour
     Vector3Int movement;
     float timeToTravelGridSize = 0.15f;
 
-    Tween tween;
+    CellTween tween;
 
     KeyCode lastMovementKeyApplied;
 
@@ -97,8 +97,9 @@ public class PlayerMovement : MonoBehaviour
                     }
                     else
                     {
-                        tween.StartPos = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-                        tween.EndPos = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
+                        tween.StartCellPos = CurrentCellPos;
+                        tween.EndCellPos = TargetCellPos;
+                        tween.UpdateWorldPositions();
                         tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
                     }
                 }
@@ -150,9 +151,10 @@ public class PlayerMovement : MonoBehaviour
 
     void TweenToTargetCell()
     {
-        var currentCellCenter = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-        var targetCellCenter = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
-        tween = PlayerManager.Instance.Tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
+        //var currentCellCenter = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
+        //var targetCellCenter = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
+        //tween = PlayerManager.Instance.Tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
+        tween = PlayerManager.Instance.Tweener.AddTween(transform, CurrentCellPos, TargetCellPos, timeToTravelGridSize, true);
     }
 
     void ApplyFlipAndRotation()

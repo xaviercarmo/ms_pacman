@@ -45,12 +45,9 @@ public class GameManager : MonoBehaviour
             BackgroundMusic.mute = !BackgroundMusic.mute;
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && CurrentGameLevel != GameLevel.MainMenu)
         {
-            if (CurrentGameLevel == GameLevel.OriginalLevel)
-            {
-                SetLevel(GameLevel.MainMenu);
-            }
+            SetLevel(GameLevel.MainMenu);
         }
     }
 
@@ -62,7 +59,6 @@ public class GameManager : MonoBehaviour
     {
         if (newGameLevel != CurrentGameLevel)
         {
-            SceneManager.UnloadSceneAsync((int)CurrentGameLevel);
             SceneManager.LoadSceneAsync((int)newGameLevel);
             CurrentGameLevel = newGameLevel;
         }

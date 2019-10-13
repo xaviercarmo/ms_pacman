@@ -19,9 +19,37 @@ public class Tween
         Duration = duration;
     }
 
-    public void Reverse()
+    public virtual void Reverse()
     {
         (StartPos, EndPos) = (EndPos, StartPos);
         StartTime = Time.time - (StartTime + Duration - Time.time);
+    }
+}
+
+//Specialisation of tween that is designed to tween between cell positions
+//allows for better tweening on grids that are moving around
+public class CellTween : Tween
+{
+    public Vector3Int StartCellPos;
+    public Vector3Int EndCellPos;
+
+    public CellTween(Transform target, Vector3Int startCellPos, Vector3Int endCellPos, float startTime, float duration)
+        : base(target, PlayerManager.Instance.LevelGrid.GetCellCenterWorld(startCellPos), PlayerManager.Instance.LevelGrid.GetCellCenterWorld(startCellPos), startTime, duration)
+    {
+        StartCellPos = startCellPos;
+        EndCellPos = endCellPos;
+    }
+
+    public override void Reverse()
+    {
+        (StartCellPos, EndCellPos) = (EndCellPos, StartCellPos);
+        StartTime = Time.time - (StartTime + Duration - Time.time);
+        UpdateWorldPositions();
+    }
+
+    public void UpdateWorldPositions()
+    {
+        StartPos = PlayerManager.Instance.LevelGrid.GetCellCenterWorld(StartCellPos);
+        EndPos = PlayerManager.Instance.LevelGrid.GetCellCenterWorld(EndCellPos);
     }
 }

@@ -20,7 +20,7 @@ public class GhostMovement : MonoBehaviour
     float timeToTravelGridSize = 0.16f;
 
     Tweener tweener;
-    Tween tween;
+    CellTween tween;
     new SpriteRenderer renderer;
     Animator animator;
 
@@ -91,8 +91,12 @@ public class GhostMovement : MonoBehaviour
                     }
                     else
                     {
-                        tween.StartPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-                        tween.EndPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
+                        //tween.StartPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
+                        //tween.EndPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
+
+                        tween.StartCellPos = CurrentCellPos;
+                        tween.EndCellPos = TargetCellPos;
+                        tween.UpdateWorldPositions();
                         tween.StartTime = Time.time - (Time.time - tween.StartTime - tween.Duration);
                         tween.Duration = timeToTravelGridSize * durationMultiplier;
                     }
@@ -154,9 +158,7 @@ public class GhostMovement : MonoBehaviour
 
     void TweenToTargetCell(float durationMultiplier = 1)
     {
-        var currentCellCenter = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-        var targetCellCenter = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
-        tween = tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize * durationMultiplier, true);
+        tween = tweener.AddTween(transform, CurrentCellPos, TargetCellPos, timeToTravelGridSize * durationMultiplier, true);
     }
 
     public void ResetState()
