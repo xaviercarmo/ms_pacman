@@ -54,7 +54,7 @@ public abstract class GhostBehaviour
         {
             SecondsBeforeRelease = 0;
 
-            if (MovementHandler.CurrentCellPos != GhostManager.RedGhostStartCellPos)
+            if (MovementHandler.CurrentCellPos != GhostManager.RedGhostStartCellPos && !LevelManager.Instance.ScrollingMode)
             {
                 return GetNextTargetCellTowardsGoal(GhostManager.RedGhostStartCellPos, currentCellPos, currentCellPos);
             }

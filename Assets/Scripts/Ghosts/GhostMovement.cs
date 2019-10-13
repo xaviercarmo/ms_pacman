@@ -56,6 +56,11 @@ public class GhostMovement : MonoBehaviour
                 break;
         }
 
+        if (LevelManager.Instance.ScrollingMode)
+        {
+            timeToTravelGridSize *= 1.5f;
+        }
+
         if (!tweener.TweenExists(transform, out var existingTween) || (Time.time - tween.StartTime) >= tween.Duration)
         {
             PreviousCellPos = CurrentCellPos;
@@ -189,7 +194,14 @@ public class GhostMovement : MonoBehaviour
                     gameObject.SetActive(false);
                     break;
                 default:
-                    LevelManager.Instance.ResetLevel();
+                    if (LevelManager.Instance.ScrollingMode)
+                    {
+                        PlayerManager.Instance.Health -= 15;
+                    }
+                    else
+                    {
+                        LevelManager.Instance.ResetLevel();
+                    }
                     break;
             }
         }

@@ -12,6 +12,7 @@ public class PlayerManager : MonoBehaviour
     public Tweener Tweener;
     public PlayerMovement MovementHandler;
     public Text ScoreText;
+    public Image[] HealthBarImages;
     public Image[] LifeImages;
 
     public Grid LevelGrid;
@@ -37,6 +38,8 @@ public class PlayerManager : MonoBehaviour
     public int Lives = 3;
     public float Health = 100;
 
+    float totalHealth = 100;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -55,6 +58,11 @@ public class PlayerManager : MonoBehaviour
 
     void Update()
     {
+        if (HealthBarImages[0].IsActive())
+        {
+            var healthWidth = Mathf.Max(25 + (218 - 25) * Health / totalHealth, 25);
+            HealthBarImages[0].rectTransform.sizeDelta = new Vector2(healthWidth, HealthBarImages[0].rectTransform.sizeDelta.y);
+        }
     }
 
     public void PlayerDieBehaviour()
@@ -70,8 +78,10 @@ public class PlayerManager : MonoBehaviour
     {
         PlayerDieBehaviour();
 
-        Lives--;
-        LifeImages[Lives].enabled = false;
+        if (Lives > 0)
+        {
+            LifeImages[--Lives].enabled = false;
+        }
 
         MovementHandler.ResetState();
     }

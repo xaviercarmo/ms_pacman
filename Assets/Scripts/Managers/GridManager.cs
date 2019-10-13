@@ -132,12 +132,13 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    //Procedurally generates rows (only horizontally right now)
+    //Procedurally generates rows (only horizontally right now) and spawns ghosts
     void GenerateRows()
     {
         rowCreationOffsetVector.y = WallsTilemap.cellBounds.yMin - rowCreationOffset;
         var lowestCellWorldPos = LevelGrid.CellToWorld(rowCreationOffsetVector);
 
+        //if the lowest point is close to being visible
         if (LevelCamera.WorldToViewportPoint(lowestCellWorldPos).y > -0.05)
         {
             var cellPos = rowCreationOffsetVector;
@@ -153,12 +154,15 @@ public class GridManager : MonoBehaviour
             while (totalWidth < 9 - 2)
             {
                 var width = UnityEngine.Random.Range(2, Mathf.Min(7, 9 - totalWidth));
-                //add a dot here, thats why theres a plus one
-                totalWidth += width + 1;
                 AddPlatformOfSize(width, cellPos, true);
-                cellPos.x += width + 1;
+                cellPos.x += width;
+
+                DotsTilemap.SetTile(cellPos, Dot);
+                DotsTilemap.SetTile(new Vector3Int(20 - cellPos.x, cellPos.y, 0), Dot);
+                cellPos.x++;
+
+                totalWidth += width + 1;
             }
-            //Debug.Log(totalWidth);
 
             var remainder = ((10 - totalWidth) - 1) * 2 + 1;
 
@@ -175,6 +179,10 @@ public class GridManager : MonoBehaviour
             else
             {
                 //roll to conjoin
+                if (UnityEngine.Random.value < 0.5f)
+                {
+                    AddBridgeOfSize(3, new Vector3Int(totalWidth, cellPos.y, 0));
+                }
             }
 
             cellPos.x = 0;
@@ -193,6 +201,35 @@ public class GridManager : MonoBehaviour
         {
             currPos.x = i;
             DotsTilemap.SetTile(currPos, Dot);
+            if (UnityEngine.Random.value < 0.05f)
+            {
+                var ghostType = UnityEngine.Random.Range(0, 3);
+                var ghostPos = LevelGrid.CellToWorld(currPos);
+                GhostBehaviour behaviour = null;
+
+                switch (ghostType)
+                {
+                    case 0:
+                        behaviour = new RedGhostBehaviour();
+                        GhostManager.Instance.SpawnGhost(GhostManager.Instance.RedGhostPrefab, ghostPos, behaviour);
+                        break;
+                    case 1:
+                        behaviour = new OrangeGhostBehaviour();
+                        GhostManager.Instance.SpawnGhost(GhostManager.Instance.OrangeGhostPrefab, ghostPos, behaviour);
+                        break;
+                    case 2:
+                        behaviour = new PinkGhostBehaviour();
+                        GhostManager.Instance.SpawnGhost(GhostManager.Instance.PinkGhostPrefab, ghostPos, behaviour);
+                        break;
+                    case 3:
+                        behaviour = new RedGhostBehaviour();
+                        GhostManager.Instance.SpawnGhost(GhostManager.Instance.RedGhostPrefab, ghostPos, behaviour);
+                        GhostManager.Instance.SpawnGhost(GhostManager.Instance.BlueGhostPrefab, ghostPos, new BlueGhostBehaviour(behaviour.MovementHandler));
+                        break;
+                }
+
+                behaviour?.SetMode(GhostMode.Chasing);
+            }
         }
     }
 
@@ -238,6 +275,7 @@ public class GridManager : MonoBehaviour
         for (var i = 0; i < size; i++)
         {
             WallsTilemap.SetTile(currPos, MiddleInnerWallHorizontal);
+            DotsTilemap.SetTile(currPos, null);
             currPos.x++;
         }
     }

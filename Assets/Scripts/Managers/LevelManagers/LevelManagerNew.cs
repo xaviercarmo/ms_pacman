@@ -10,14 +10,14 @@ public class LevelManagerNew : LevelManager
     {
         if (!GameSuspended)
         {
-            if (PlayerManager.Instance.DotsEaten == 0 && !ScrollingMode) //change this to 152
+            if (PlayerManager.Instance.DotsEaten == 152 && !ScrollingMode)
             {
                 StatusText.text = "Run!";
                 canPause = false;
                 GameSuspended = true;
                 ScrollingMode = true;
 
-                //GameManager.Instance.BackgroundMusic.Stop(); //commented while playing around
+                GameManager.Instance.BackgroundMusic.Stop();
                 AudioManager.Instance.PauseAllSources();
                 AudioManager.Instance.RumbleAudioSource.Play();
 
@@ -45,10 +45,11 @@ public class LevelManagerNew : LevelManager
 
         GridManager.Instance.DeleteBottomRow();
 
+        Array.ForEach(PlayerManager.Instance.HealthBarImages, img => img.gameObject.SetActive(true));
         Array.ForEach(PlayerManager.Instance.LifeImages, img => img.enabled = false);
 
         AudioManager.Instance.RumbleAudioSource.Stop();
-        //GameManager.Instance.BackgroundMusic.Play(); //commented while playing around
+        GameManager.Instance.BackgroundMusic.Play();
         AudioManager.Instance.ResumeAllSources();
     }
 }

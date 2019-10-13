@@ -118,7 +118,7 @@ public class GhostManager : MonoBehaviour
         }
     }
 
-    void SpawnGhost(GameObject prefab, Vector3 worldPos, GhostBehaviour behaviour)
+    public void SpawnGhost(GameObject prefab, Vector3 worldPos, GhostBehaviour behaviour)
     {
         var ghostGameObject = GridManager.Instance != null
             ? Instantiate(prefab, worldPos, Quaternion.identity, GridManager.Instance.GridGroup.transform)
