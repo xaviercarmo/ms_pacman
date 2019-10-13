@@ -177,7 +177,7 @@ public class GhostMovement : MonoBehaviour
         {
             OriginalLevelManager.Instance.ResetLevel();
         }
-        else
+        else if (Behaviour.Mode == GhostMode.Frightened)
         {
             GhostManager.Instance.ConsecutiveGhostsEaten++;
             AudioManager.Instance.GhostEatenAudioSource.Play();

@@ -21,9 +21,17 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
 
-        StartCoroutine(FadeInBackgroundMusic());
+            StartCoroutine(FadeInBackgroundMusic());
+        }
     }
 
     void Start()
