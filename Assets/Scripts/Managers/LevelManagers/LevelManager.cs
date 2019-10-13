@@ -28,7 +28,6 @@ public abstract class LevelManager : MonoBehaviour
 
     void Start()
     {
-        Time.timeScale = 0.1f;
         InvokeRepeating("ToggleStartText", 0.4f, 0.4f);
     }
 

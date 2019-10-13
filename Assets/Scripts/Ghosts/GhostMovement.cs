@@ -91,9 +91,6 @@ public class GhostMovement : MonoBehaviour
                     }
                     else
                     {
-                        //tween.StartPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-                        //tween.EndPos = GhostManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
-
                         tween.StartCellPos = CurrentCellPos;
                         tween.EndCellPos = TargetCellPos;
                         tween.UpdateWorldPositions();

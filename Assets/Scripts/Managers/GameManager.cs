@@ -12,7 +12,7 @@ public enum GameLevel
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance; //finish singleton pattern so multiple aren't made when coming back to main menu
+    public static GameManager Instance;
 
     public static GameLevel CurrentGameLevel { get; private set; } = GameLevel.MainMenu;
     public AudioSource BackgroundMusic;
