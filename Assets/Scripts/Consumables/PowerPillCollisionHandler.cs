@@ -14,7 +14,14 @@ public class PowerPillCollisionHandler : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        GhostManager.Instance.ChangeGhostMode(GhostMode.Frightened);
-        Destroy(gameObject);
+        if (collision.gameObject.tag == "Player")
+        {
+            if (!LevelManager.Instance.ScrollingMode)
+            {
+                GhostManager.Instance.ChangeGhostMode(GhostMode.Frightened);
+            }
+
+            Destroy(gameObject);
+        }
     }
 }

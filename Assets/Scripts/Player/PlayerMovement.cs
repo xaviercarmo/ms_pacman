@@ -119,7 +119,6 @@ public class PlayerMovement : MonoBehaviour
 
     public void ResetState()
     {
-        PlayerManager.Instance.Animator.SetTrigger("Died");
         if (PlayerManager.Instance.Lives > 0)
         {
             Invoke("ResetStateDelayed", 1.5f);
@@ -151,9 +150,6 @@ public class PlayerMovement : MonoBehaviour
 
     void TweenToTargetCell()
     {
-        //var currentCellCenter = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(CurrentCellPos);
-        //var targetCellCenter = PlayerManager.Instance.WallsTilemap.GetCellCenterWorld(TargetCellPos);
-        //tween = PlayerManager.Instance.Tweener.AddTween(transform, currentCellCenter, targetCellCenter, timeToTravelGridSize, true);
         tween = PlayerManager.Instance.Tweener.AddTween(transform, CurrentCellPos, TargetCellPos, timeToTravelGridSize, true);
     }
 

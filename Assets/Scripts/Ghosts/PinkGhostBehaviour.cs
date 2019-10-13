@@ -8,7 +8,7 @@ public class PinkGhostBehaviour : GhostBehaviour
     {
         scatterGoalCellPos = new Vector3Int(GhostManager.Instance.WallsTilemap.cellBounds.xMin, GhostManager.Instance.WallsTilemap.cellBounds.yMax, 0);
         dotsBeforeRelease = 10;
-        secondsBeforeRelease = 5;
+        SecondsBeforeRelease = 5;
     }
 
     //Returns the cell 3 spots ahead of ms pacman's current cell
@@ -17,6 +17,6 @@ public class PinkGhostBehaviour : GhostBehaviour
 
     protected override void AdditionalResetBehaviour()
     {
-        secondsBeforeRelease = 3;
+        SecondsBeforeRelease = 3;
     }
 }

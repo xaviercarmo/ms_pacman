@@ -45,10 +45,11 @@ public class GhostMovement : MonoBehaviour
         switch (Behaviour.Mode)
         {
             case GhostMode.Frightened:
-                timeToTravelGridSize = baseTimeToTravelGridSize * 1.5f;
+            case GhostMode.Exiting:
+                timeToTravelGridSize = baseTimeToTravelGridSize * 2f;
                 break;
             case GhostMode.RunningHome:
-                timeToTravelGridSize = baseTimeToTravelGridSize * 0.5f;
+                timeToTravelGridSize = baseTimeToTravelGridSize * 0.75f;
                 break;
             default:
                 timeToTravelGridSize = baseTimeToTravelGridSize;
@@ -117,7 +118,7 @@ public class GhostMovement : MonoBehaviour
     {
         var directionVec = TargetCellPos - CurrentCellPos;
 
-        if (Behaviour.Mode == GhostMode.Frightened)
+        if (Behaviour.Mode == GhostMode.Frightened || Behaviour.Mode == GhostMode.Exiting)
         {
             animator.SetTrigger("RunAway");
             animator.speed = 0.5f;
@@ -172,16 +173,25 @@ public class GhostMovement : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (Behaviour.Mode != GhostMode.Frightened && Behaviour.Mode != GhostMode.RunningHome)
+        if (collision.gameObject.tag == "Player")
         {
-            LevelManager.Instance.ResetLevel();
-        }
-        else if (Behaviour.Mode == GhostMode.Frightened)
-        {
-            GhostManager.Instance.ConsecutiveGhostsEaten++;
-            AudioManager.Instance.GhostEatenAudioSource.Play();
-            PlayerManager.Instance.Points += 200 * GhostManager.Instance.ConsecutiveGhostsEaten;
-            Behaviour.SetMode(GhostMode.RunningHome);
+            switch (Behaviour.Mode)
+            {
+                case GhostMode.Frightened:
+                    GhostManager.Instance.ConsecutiveGhostsEaten++;
+                    AudioManager.Instance.GhostEatenAudioSource.Play();
+                    PlayerManager.Instance.Points += 200 * GhostManager.Instance.ConsecutiveGhostsEaten;
+                    Behaviour.SetMode(GhostMode.RunningHome);
+                    break;
+                case GhostMode.Exiting:
+                    AudioManager.Instance.GhostEatenAudioSource.Play();
+                    PlayerManager.Instance.Points += 200;
+                    gameObject.SetActive(false);
+                    break;
+                default:
+                    LevelManager.Instance.ResetLevel();
+                    break;
+            }
         }
     }
 }

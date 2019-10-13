@@ -9,6 +9,8 @@ public abstract class LevelManager : MonoBehaviour
     public Text StatusText;
 
     public bool GameSuspended { get; protected set; } = true;
+    public bool ScrollingMode = false;
+
     protected float gameResetTime = 3f;
 
     protected bool gameStarted = false;

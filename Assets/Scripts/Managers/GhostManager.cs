@@ -38,7 +38,7 @@ public class GhostManager : MonoBehaviour
 
     List<GhostBehaviour> ghostBehaviours;
 
-    float frightenDuration = 8;
+    float frightenDuration = 6;
     bool frightenedMode = false;
     Coroutine setGhostModeCoroutine = null;
 
@@ -61,14 +61,14 @@ public class GhostManager : MonoBehaviour
             (
                 new (GhostMode, float)[]
                 {
-                    (GhostMode.Scatter, 0f),
-                    (GhostMode.Chase, 7f),
-                    (GhostMode.Scatter, 20f),
-                    (GhostMode.Chase, 5f),
-                    (GhostMode.Scatter, 20f),
-                    (GhostMode.Chase, 5f),
-                    (GhostMode.Scatter, float.PositiveInfinity),
-                    (GhostMode.Chase, -1)
+                    (GhostMode.Scattering, 0f),
+                    (GhostMode.Chasing, 7f),
+                    (GhostMode.Scattering, 20f),
+                    (GhostMode.Chasing, 5f),
+                    (GhostMode.Scattering, 20f),
+                    (GhostMode.Chasing, 5f),
+                    (GhostMode.Scattering, float.PositiveInfinity),
+                    (GhostMode.Chasing, -1)
                 }
             );
 
@@ -97,8 +97,8 @@ public class GhostManager : MonoBehaviour
 
         if (NewLevel)
         {
-            CurrentModeInQueue = GhostMode.Chase;
-            ChangeGhostMode(GhostMode.Chase);
+            CurrentModeInQueue = GhostMode.Chasing;
+            ChangeGhostMode(GhostMode.Chasing);
         }
     }
 
@@ -124,7 +124,9 @@ public class GhostManager : MonoBehaviour
             ? Instantiate(prefab, worldPos, Quaternion.identity, GridManager.Instance.GridGroup.transform)
             : Instantiate(prefab, worldPos, Quaternion.identity);
 
+        ghostGameObject.GetComponent<SpriteRenderer>().sortingLayerName = "Default";
         ghostGameObject.name = behaviour.GetType().Name;
+        ghostGameObject.tag = "Ghost";
 
         var ghostMovementHandler = ghostGameObject.GetComponent<GhostMovement>();
         ghostMovementHandler.Behaviour = behaviour;
@@ -155,6 +157,23 @@ public class GhostManager : MonoBehaviour
         }
 
         ghostBehaviours.ForEach(behaviour => behaviour.SetMode(mode));
+    }
+
+    public void FrightenIndefinitely()
+    {
+        ConsecutiveGhostsEaten = 0;
+        frightenedMode = true;
+
+        if (setGhostModeCoroutine != null)
+        {
+            StopCoroutine(setGhostModeCoroutine);
+        }
+
+        ghostBehaviours.ForEach(behaviour =>
+        {
+            behaviour.SetMode(GhostMode.Exiting);
+            behaviour.SecondsBeforeRelease = 0;
+        });
     }
 
     IEnumerator SetGhostModeDelayed()

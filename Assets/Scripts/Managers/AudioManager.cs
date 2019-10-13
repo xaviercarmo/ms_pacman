@@ -9,6 +9,7 @@ public class AudioManager : MonoBehaviour
     public AudioSource FruitAudioSource;
     public AudioSource GhostFrightenedAudioSource;
     public AudioSource GhostEatenAudioSource;
+    public AudioSource RumbleAudioSource;
 
     public AudioClip PlayerEatDotClip;
     public AudioClip PlayerDieClip;

@@ -10,12 +10,14 @@ public class LevelManagerOriginal : LevelManager
             StatusText.text = "You  Won!";
             AudioManager.Instance.StopAllSources();
             GameSuspended = true;
+            canPause = false;
         }
         else if (PlayerManager.Instance.Lives <= 0)
         {
             StatusText.text = "Game  Over...";
             AudioManager.Instance.StopAllSources();
             GameSuspended = true;
+            canPause = false;
         }
     }
 }

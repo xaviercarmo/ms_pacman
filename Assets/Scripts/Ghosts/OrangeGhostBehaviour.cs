@@ -8,7 +8,7 @@ public class OrangeGhostBehaviour : GhostBehaviour
     {
         scatterGoalCellPos = new Vector3Int(GhostManager.Instance.WallsTilemap.cellBounds.xMin, GhostManager.Instance.WallsTilemap.cellBounds.yMin, 0);
         dotsBeforeRelease = 45;
-        secondsBeforeRelease = 30;
+        SecondsBeforeRelease = 30;
     }
 
     protected override Vector3Int GetGoalCell()
@@ -25,6 +25,6 @@ public class OrangeGhostBehaviour : GhostBehaviour
 
     protected override void AdditionalResetBehaviour()
     {
-        secondsBeforeRelease = 9;
+        SecondsBeforeRelease = 9;
     }
 }

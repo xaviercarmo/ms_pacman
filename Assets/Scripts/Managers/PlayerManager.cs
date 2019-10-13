@@ -35,6 +35,7 @@ public class PlayerManager : MonoBehaviour
 
     public int DotsEaten = 0;
     public int Lives = 3;
+    public float Health = 100;
 
     void Awake()
     {
@@ -56,11 +57,18 @@ public class PlayerManager : MonoBehaviour
     {
     }
 
-    public void ResetState()
+    public void PlayerDieBehaviour()
     {
         AudioManager.Instance.PlayerAudioSource.clip = AudioManager.Instance.PlayerDieClip;
         AudioManager.Instance.PlayerAudioSource.loop = false;
+        AudioManager.Instance.PlayerAudioSource.UnPause();
         AudioManager.Instance.PlayerAudioSource.Play();
+        Animator.SetTrigger("Died");
+    }
+
+    public void ResetState()
+    {
+        PlayerDieBehaviour();
 
         Lives--;
         LifeImages[Lives].enabled = false;
