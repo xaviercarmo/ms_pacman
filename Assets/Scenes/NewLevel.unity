@@ -4443,6 +4443,13 @@ MonoBehaviour:
   HorizontalPortalsTilemap: {fileID: 928310325}
   GhostSlowersTilemap: {fileID: 722971619}
   SpikesRow: {fileID: 1850875769}
+  LeftOuterWall: {fileID: 11400000, guid: 0e4b2c7bad2382b43a888a15c2bdad2e, type: 2}
+  RightOuterWall: {fileID: 11400000, guid: 6fb20bf48b4eb6249a99fd20029ce51a, type: 2}
+  LeftEndInnerWall: {fileID: 11400000, guid: 9c2c610e556b96c4a820e914b77eeed6, type: 2}
+  RightEndInnerWall: {fileID: 11400000, guid: 7b426af78790c2d488e80bfa5b68a577, type: 2}
+  MiddleInnerWallHorizontal: {fileID: 11400000, guid: 6fe1d3e2ca76d4b4ab5c6d2d6a85d808,
+    type: 2}
+  Dot: {fileID: 11400000, guid: 735ff26e20ed4e64b90c596d57209890, type: 2}
 --- !u!1 &1602406046
 GameObject:
   m_ObjectHideFlags: 0

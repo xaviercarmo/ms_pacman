@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class LevelManagerNew : LevelManager
 {
@@ -9,14 +10,14 @@ public class LevelManagerNew : LevelManager
     {
         if (!GameSuspended)
         {
-            if (PlayerManager.Instance.DotsEaten == 15 && !ScrollingMode) //change this to 152
+            if (PlayerManager.Instance.DotsEaten == 0 && !ScrollingMode) //change this to 152
             {
                 StatusText.text = "Run!";
                 canPause = false;
                 GameSuspended = true;
                 ScrollingMode = true;
 
-                GameManager.Instance.BackgroundMusic.Stop();
+                //GameManager.Instance.BackgroundMusic.Stop(); //commented while playing around
                 AudioManager.Instance.PauseAllSources();
                 AudioManager.Instance.RumbleAudioSource.Play();
 
@@ -42,8 +43,12 @@ public class LevelManagerNew : LevelManager
         canPause = true;
         GameSuspended = false;
 
+        GridManager.Instance.DeleteBottomRow();
+
+        Array.ForEach(PlayerManager.Instance.LifeImages, img => img.enabled = false);
+
         AudioManager.Instance.RumbleAudioSource.Stop();
-        GameManager.Instance.BackgroundMusic.Play();
+        //GameManager.Instance.BackgroundMusic.Play(); //commented while playing around
         AudioManager.Instance.ResumeAllSources();
     }
 }
