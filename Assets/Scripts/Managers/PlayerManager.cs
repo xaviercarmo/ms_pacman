@@ -58,7 +58,7 @@ public class PlayerManager : MonoBehaviour
 
     void Update()
     {
-        if (HealthBarImages[0].IsActive())
+        if (HealthBarImages != null && HealthBarImages[0].IsActive())
         {
             var healthWidth = Mathf.Max(25 + (218 - 25) * Health / totalHealth, 25);
             HealthBarImages[0].rectTransform.sizeDelta = new Vector2(healthWidth, HealthBarImages[0].rectTransform.sizeDelta.y);
